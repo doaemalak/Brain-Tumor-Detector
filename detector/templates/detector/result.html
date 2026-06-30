@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Résultat — BrainScan AI</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+        rel="stylesheet" />
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        rel="stylesheet" />
+
+  <style>
+    :root {
+      --primary-dark: #0d1b2a;
+      --accent: #00b4d8;
+      --accent-light: #90e0ef;
+      --danger-glow: rgba(220, 53, 69, 0.25);
+      --safe-glow: rgba(25, 200, 120, 0.22);
+    }
+
+    body {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, #162032 60%, #1a2a3a 100%);
+      min-height: 100vh;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #e0e6ed;
+    }
+
+    .navbar {
+      background: rgba(11, 27, 42, 0.95) !important;
+      border-bottom: 1px solid rgba(0, 180, 216, 0.2);
+    }
+
+    /* ---- Verdict card ---- */
+    .verdict-card {
+      border-radius: 22px;
+      padding: 40px 35px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .verdict-card.tumor {
+      background: rgba(220, 53, 69, 0.08);
+      border: 2px solid rgba(220, 53, 69, 0.5);
+      box-shadow: 0 0 40px var(--danger-glow);
+    }
+    .verdict-card.healthy {
+      background: rgba(25, 200, 120, 0.07);
+      border: 2px solid rgba(25, 200, 120, 0.45);
+      box-shadow: 0 0 40px var(--safe-glow);
+    }
+
+    .verdict-icon {
+      font-size: 5rem;
+      display: block;
+      margin-bottom: 12px;
+    }
+    .verdict-card.tumor  .verdict-icon { color: #ff6b7a; }
+    .verdict-card.healthy .verdict-icon { color: #2ecc9a; }
+
+    .verdict-title {
+      font-size: 1.9rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .verdict-card.tumor  .verdict-title { color: #ff6b7a; }
+    .verdict-card.healthy .verdict-title { color: #2ecc9a; }
+
+    .verdict-subtitle {
+      font-size: 1rem;
+      color: #8fa8bf;
+    }
+
+    /* ---- Barre de confiance ---- */
+    .confidence-section {
+      margin-top: 28px;
+    }
+    .confidence-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: .9rem;
+      color: #8fa8bf;
+      margin-bottom: 8px;
+    }
+    .confidence-value {
+      font-size: 2.6rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .verdict-card.tumor  .confidence-value { color: #ff6b7a; }
+    .verdict-card.healthy .confidence-value { color: #2ecc9a; }
+
+    .progress-bar-custom {
+      height: 12px;
+      border-radius: 50px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 50px;
+      transition: width 1.2s cubic-bezier(.4,0,.2,1);
+    }
+    .verdict-card.tumor  .progress-fill { background: linear-gradient(90deg, #c0392b, #ff6b7a); }
+    .verdict-card.healthy .progress-fill { background: linear-gradient(90deg, #1a9970, #2ecc9a); }
+
+    /* ---- IRM card ---- */
+    .mri-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(0, 180, 216, 0.2);
+      border-radius: 20px;
+      padding: 30px;
+      backdrop-filter: blur(8px);
+    }
+    .mri-card img {
+      border-radius: 12px;
+      border: 1px solid rgba(0, 180, 216, 0.25);
+      width: 100%;
+      object-fit: cover;
+      filter: brightness(1.05) contrast(1.1);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    }
+    .mri-badge {
+      display: inline-block;
+      background: rgba(0, 180, 216, 0.12);
+      border: 1px solid rgba(0, 180, 216, 0.3);
+      border-radius: 50px;
+      padding: 4px 14px;
+      font-size: .78rem;
+      color: var(--accent-light);
+      margin-top: 14px;
+    }
+
+    /* ---- Gauge demi-cercle ---- */
+    .gauge-wrap {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0 10px;
+    }
+    .gauge-wrap svg text {
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* ---- Bouton retour ---- */
+    .btn-back {
+      background: rgba(0, 180, 216, 0.1);
+      border: 1px solid rgba(0, 180, 216, 0.35);
+      color: var(--accent-light);
+      border-radius: 50px;
+      padding: 10px 32px;
+      font-weight: 600;
+      transition: all .25s;
+    }
+    .btn-back:hover {
+      background: rgba(0, 180, 216, 0.22);
+      color: #fff;
+    }
+
+    /* ---- Info pills ---- */
+    .info-pills .pill {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: .85rem;
+      color: #8fa8bf;
+    }
+    .info-pills .pill strong {
+      display: block;
+      color: #c8dce8;
+      font-size: .95rem;
+      margin-bottom: 2px;
+    }
+
+    footer {
+      border-top: 1px solid rgba(255,255,255,0.06);
+      color: #4a6a80;
+      font-size: .82rem;
+    }
+
+    /* Animation entrée */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .anim { animation: fadeUp .6s ease both; }
+    .anim-d1 { animation-delay: .1s; }
+    .anim-d2 { animation-delay: .25s; }
+    .anim-d3 { animation-delay: .4s; }
+  </style>
+</head>
+
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-dark">
+    <div class="container">
+      <span class="navbar-brand">
+        <i class="bi bi-activity text-info me-2"></i>BrainScan AI
+      </span>
+      <span class="badge" style="background:rgba(0,180,216,.2); color:var(--accent-light); border:1px solid rgba(0,180,216,.3);">
+        Résultat d'analyse
+      </span>
+    </div>
+  </nav>
+
+  <main class="container py-5" style="max-width: 960px;">
+
+    <div class="row g-4 align-items-start">
+
+      <!-- Colonne gauche : IRM -->
+      <div class="col-md-5 anim anim-d1">
+        <div class="mri-card">
+          <h6 class="text-uppercase mb-3" style="color:var(--accent);letter-spacing:1.5px;font-size:.75rem;">
+            <i class="bi bi-image me-1"></i>Coupe IRM extraite
+          </h6>
+          <img src="{{ slice_url }}" alt="Coupe IRM axiale" />
+          <div class="text-center">
+            <span class="mri-badge">
+              <i class="bi bi-layers me-1"></i>Coupe axiale &bull; Slice 75
+            </span>
+          </div>
+
+          <!-- Pills infos -->
+          <div class="info-pills row g-2 mt-3">
+            <div class="col-6">
+              <div class="pill">
+                <strong>128 × 128 px</strong>
+                Entrée modèle
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="pill">
+                <strong>Z-Score</strong>
+                Normalisation
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="pill">
+                <strong><i class="bi bi-file-earmark-medical me-1"></i>{{ original_filename }}</strong>
+                Fichier analysé
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Colonne droite : Verdict -->
+      <div class="col-md-7 anim anim-d2">
+
+        <div class="verdict-card {% if has_tumor %}tumor{% else %}healthy{% endif %}">
+
+          {% if has_tumor %}
+            <i class="bi bi-exclamation-octagon-fill verdict-icon"></i>
+            <div class="verdict-title">Tumeur détectée</div>
+            <p class="verdict-subtitle">
+              Le modèle CNN a identifié des anomalies caractéristiques d'une lésion cérébrale.
+            </p>
+          {% else %}
+            <i class="bi bi-check-circle-fill verdict-icon"></i>
+            <div class="verdict-title">Cerveau sain</div>
+            <p class="verdict-subtitle">
+              Aucune anomalie tumorale détectée sur cette coupe IRM.
+            </p>
+          {% endif %}
+
+          <!-- Jauge SVG demi-cercle — couleurs injectées depuis views.py -->
+          <div class="gauge-wrap">
+            <svg width="200" height="110" viewBox="0 0 200 110">
+              <!-- Arc de fond -->
+              <path d="M 20 100 A 80 80 0 0 1 180 100"
+                    stroke="{{ gauge_bg_color }}" stroke-width="14"
+                    fill="none" stroke-linecap="round"/>
+              <!-- Arc coloré (dasharray animé par JS) -->
+              <path id="gauge-arc"
+                    d="M 20 100 A 80 80 0 0 1 180 100"
+                    stroke="{{ gauge_color }}" stroke-width="14"
+                    fill="none" stroke-linecap="round"
+                    stroke-dasharray="0 251.2"/>
+              <!-- Texte central -->
+              <text x="100" y="85" text-anchor="middle"
+                    font-size="26" font-weight="800" fill="{{ gauge_color }}">
+                {% if not has_tumor and not zone_signal_atypique %}100%{% else %}{{ display_pct }}%{% endif %}
+              </text>
+              <text x="100" y="105" text-anchor="middle"
+                    font-size="11" fill="#6a8fa8">
+                {% if has_tumor %}Confiance{% elif zone_signal_atypique %}Signal{% else %}Fiabilité{% endif %}
+              </text>
+            </svg>
+          </div>
+
+          <!-- Barres de confiance -->
+          <div class="confidence-section">
+
+            {% if has_tumor %}
+              <!-- ── Verdict TUMORAL : tumeur en premier ── -->
+              <div class="confidence-label">
+                <span><i class="bi bi-exclamation-circle me-1"></i>Probabilité — Tumeur</span>
+                <span>{{ prob_tumeur }}%</span>
+              </div>
+              <div class="progress-bar-custom mb-3">
+                <div class="progress-fill" id="bar-tumor" style="width:0%"></div>
+              </div>
+              <div class="confidence-label">
+                <span><i class="bi bi-check-circle me-1"></i>Probabilité — Sain</span>
+                <span>{{ prob_sain }}%</span>
+              </div>
+              <div class="progress-bar-custom">
+                <div style="height:100%;border-radius:50px;background:rgba(46,204,154,0.3);width:0%;transition:width 1.2s cubic-bezier(.4,0,.2,1)" id="bar-healthy"></div>
+              </div>
+
+            {% else %}
+              {% if zone_signal_atypique %}
+              <!-- ── Verdict SAIN — Zone de signal atypique (80–95 %) ── -->
+              <div class="confidence-label">
+                <span>
+                  <i class="bi bi-exclamation-triangle me-1" style="color:#f39c12;"></i>
+                  Indice de confiance
+                </span>
+                <span style="color:#f39c12;font-weight:700;">Modérée</span>
+              </div>
+              <div class="progress-bar-custom mb-3" style="background:rgba(255,255,255,0.06)">
+                <div id="bar-healthy"
+                     style="height:100%;border-radius:50px;
+                            background:linear-gradient(90deg,#d68910,#f39c12);
+                            width:0%;transition:width 1.2s cubic-bezier(.4,0,.2,1)"></div>
+              </div>
+              <p style="font-size:.80rem;color:#c8a84b;margin-top:10px;margin-bottom:0;
+                         background:rgba(243,156,18,0.08);
+                         border:1px solid rgba(243,156,18,0.25);
+                         border-radius:8px;padding:10px 14px;">
+                <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                <strong>Analyse incertaine : présence de signaux atypiques.</strong><br>
+                Le modèle détecte un signal de {{ prob_tumeur }}% sans franchir le seuil
+                de décision. Un examen clinique complémentaire est recommandé.
+              </p>
+
+              {% else %}
+              <!-- ── Verdict SAIN — Haute fiabilité ── -->
+              <div class="confidence-label">
+                <span><i class="bi bi-shield-check me-1"></i>Fiabilité du diagnostic</span>
+                <span style="color:#2ecc9a;font-weight:700;">Élevée</span>
+              </div>
+              <div class="progress-bar-custom mb-3">
+                <div class="progress-fill" id="bar-healthy" style="width:0%"></div>
+              </div>
+              <p style="font-size:.80rem;color:#6a8fa8;margin-top:10px;margin-bottom:0;">
+                <i class="bi bi-shield-check me-1" style="color:#2ecc9a;"></i>
+                Le modèle a analysé les structures cérébrales et n'a détecté aucun signal
+                dépassant le seuil de rigueur médicale.
+              </p>
+              {% endif %}
+            {% endif %}
+
+          </div>
+        </div><!-- /verdict-card -->
+
+        <!-- Avertissement médical -->
+        <div class="mt-4 p-3 anim anim-d3"
+             style="background:rgba(255,193,7,0.07);border:1px solid rgba(255,193,7,0.25);border-radius:12px;font-size:.82rem;color:#c8b566;">
+          <i class="bi bi-shield-exclamation me-1"></i>
+          <strong>Avertissement :</strong> Ce résultat est fourni à titre de démonstration académique uniquement.
+          Il ne constitue pas un diagnostic médical. Consultez impérativement un médecin radiologue.
+        </div>
+
+        <div class="text-center mt-4">
+          <a href="{% url 'detector:index' %}" class="btn btn-back">
+            <i class="bi bi-arrow-left me-2"></i>Analyser une autre IRM
+          </a>
+        </div>
+      </div><!-- /col -->
+
+    </div><!-- /row -->
+  </main>
+
+  <footer class="text-center py-4 mt-2">
+    <div class="container">
+      Projet Deep Learning &mdash; Détection de tumeurs cérébrales &bull;
+      Modèle CNN entraîné sur IRM pondérées T1
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Anime les barres et la jauge après chargement
+    const tumorPct   = {{ prob_tumeur }};
+    const healthyPct = {{ prob_sain }};
+
+    window.addEventListener('load', () => {
+      // Barres de progression
+      const barTumor   = document.getElementById('bar-tumor');
+      const barHealthy = document.getElementById('bar-healthy');
+      const hasTumor         = {{ has_tumor|yesno:"true,false" }};
+      const zoneSignalAtypique = {{ zone_signal_atypique|yesno:"true,false" }};
+      if (barTumor)   setTimeout(() => barTumor.style.width   = tumorPct + '%', 200);
+      if (barHealthy) {
+        // uncertain zone → animate to tumor signal level; healthy → 100%
+        const healthyFill = hasTumor ? healthyPct : (zoneSignalAtypique ? tumorPct : 100);
+        setTimeout(() => barHealthy.style.width = healthyFill + '%', 200);
+      }
+
+      // Jauge SVG — arc total = 251.2 (demi-cercle π×80)
+      const arc = document.getElementById('gauge-arc');
+      if (arc) {
+        const pct = (hasTumor || zoneSignalAtypique) ? tumorPct : 100;
+        const total = 251.2;
+        const filled = (pct / 100) * total;
+        setTimeout(() => {
+          arc.setAttribute('stroke-dasharray', filled + ' ' + (total - filled));
+        }, 300);
+      }
+    });
+  </script>
+</body>
+</html>

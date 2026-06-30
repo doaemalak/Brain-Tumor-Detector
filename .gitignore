@@ -1,0 +1,62 @@
+# Environnement virtuel
+venv/
+env/
+.venv/
+
+# Modèles entraînés (fichiers lourds — distribuer via releases)
+*.keras
+*.h5
+*.pb
+
+# Fichiers de stats (contient le seuil et les stats du dataset)
+dataset_stats.json
+
+# Médias générés à la volée
+media/
+
+# Cache Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Variables d'environnement
+.env
+.env.*
+*.env
+
+# Django
+db.sqlite3
+*.sqlite3
+
+# Rapports LaTeX (fichiers générés)
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.pdf
+
+# Données d'entraînement (volumineuses)
+data/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Notebooks Jupyter
+.ipynb_checkpoints/
+
+# Distribution Python
+dist/
+build/
+*.egg-info/
