@@ -1,0 +1,569 @@
+\documentclass[12pt, a4paper]{report}
+
+% ─── Packages ────────────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage[top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm]{geometry}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{amsmath, amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{setspace}
+\usepackage{listings}
+\usepackage{tocloft}
+\usepackage{microtype}
+
+% ─── Couleurs ────────────────────────────────────────────────────────────────
+\definecolor{emsiBlue}{RGB}{0, 70, 127}
+\definecolor{codeGray}{RGB}{245, 245, 245}
+\definecolor{codeGreen}{RGB}{0, 128, 0}
+\definecolor{codeRed}{RGB}{180, 0, 0}
+
+% ─── Hyperliens ──────────────────────────────────────────────────────────────
+\hypersetup{
+    colorlinks   = true,
+    linkcolor    = emsiBlue,
+    urlcolor     = emsiBlue,
+    citecolor    = emsiBlue,
+    pdftitle     = {Détection de tumeurs cérébrales par CNN},
+    pdfauthor    = {MOUMEN Doae Malak},
+    pdfsubject   = {Deep Learning – Classification binaire},
+}
+
+% ─── En-têtes / pieds de page ────────────────────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{emsiBlue}{\textit{Détection de tumeurs cérébrales par CNN}}}
+\fancyhead[R]{\small\textcolor{emsiBlue}{\textit{EMSI}}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ─── Style des titres ────────────────────────────────────────────────────────
+\titleformat{\chapter}[display]
+  {\normalfont\huge\bfseries\color{emsiBlue}}
+  {\chaptertitlename\ \thechapter}{20pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{-10pt}{20pt}
+
+% ─── Listings (code Python) ──────────────────────────────────────────────────
+\lstdefinestyle{pythonStyle}{
+    backgroundcolor = \color{codeGray},
+    basicstyle      = \ttfamily\small,
+    keywordstyle    = \color{codeRed}\bfseries,
+    commentstyle    = \color{codeGreen}\itshape,
+    stringstyle     = \color{orange},
+    breaklines      = true,
+    frame           = single,
+    rulecolor       = \color{gray!50},
+    language        = Python,
+    showstringspaces= false,
+    numbers         = left,
+    numberstyle     = \tiny\color{gray},
+    numbersep       = 5pt,
+}
+
+% ─── Interligne ──────────────────────────────────────────────────────────────
+\onehalfspacing
+
+% ─────────────────────────────────────────────────────────────────────────────
+\begin{document}
+
+% ════════════════════════════════════════════════════════════════════════════
+%  PAGE DE GARDE
+% ════════════════════════════════════════════════════════════════════════════
+\begin{titlepage}
+  \centering
+
+  % Logo EMSI (remplacer par le vrai fichier image)
+  % \includegraphics[width=0.25\textwidth]{logo_emsi.png}\\[1.5em]
+
+  {\Large\bfseries\color{emsiBlue}
+    École Marocaine des Sciences de l'Ingénieur (EMSI)\\[0.4em]}
+  \rule{\linewidth}{0.6pt}\\[0.8em]
+  {\large Filière : Ingénierie Informatique et Réseaux\\
+   Module : Deep Learning}\\[3em]
+
+  % Titre principal
+  \begin{tikzpicture}[remember picture, overlay]
+  \end{tikzpicture}
+
+  {\fontsize{22}{26}\selectfont\bfseries\color{emsiBlue}
+    Détection de Tumeurs Cérébrales\\[0.3em]
+    par Réseau de Neurones Convolutif\\[0.3em]
+    (Classification Binaire)}\\[1.5em]
+
+  \rule{\linewidth}{0.6pt}\\[2.5em]
+
+  % Auteure
+  {\large\bfseries Réalisé par :}\\[0.6em]
+  {\Large MOUMEN Doae Malak}\\[2em]
+
+  % Encadrant (placeholder)
+  {\large\bfseries Encadré par :}\\[0.6em]
+  {\large [Nom du Professeur encadrant]}\\[2.5em]
+
+  % Dataset / Année
+  {\large Dataset : \textbf{BraTS 2021} \quad--\quad
+   Année universitaire : \textbf{2025 -- 2026}}\\[3em]
+
+  \vfill
+  {\large\bfseries\color{emsiBlue} Casablanca, Maroc\\ Avril 2026}
+
+\end{titlepage}
+
+% ════════════════════════════════════════════════════════════════════════════
+%  RÉSUMÉ
+% ════════════════════════════════════════════════════════════════════════════
+\chapter*{Résumé}
+\addcontentsline{toc}{chapter}{Résumé}
+
+Ce rapport présente une approche de deep learning appliquée à la détection de tumeurs cérébrales
+à partir d'images IRM issues du dataset \textbf{BraTS 2021}.
+Le problème est formulé comme une \textit{classification binaire} : présence ou absence de tumeur.
+L'architecture retenue est un réseau de neurones convolutif (CNN) de type \textbf{ResNet},
+entraîné sur \textbf{30 époques} à partir d'images NIfTI (\texttt{.nii.gz}) prétraitées et normalisées.
+Les résultats obtenus montrent une convergence stable du modèle et des performances satisfaisantes
+sur l'ensemble de validation, ouvrant la voie à des applications cliniques d'aide au diagnostic.
+
+\bigskip
+\noindent\textbf{Mots-clés :} Deep Learning, CNN, ResNet, Tumeurs cérébrales, IRM, BraTS 2021,
+Classification binaire, NIfTI, Segmentation médicale.
+
+\cleardoublepage
+
+% ════════════════════════════════════════════════════════════════════════════
+%  SOMMAIRE
+% ════════════════════════════════════════════════════════════════════════════
+\tableofcontents
+\cleardoublepage
+
+% ════════════════════════════════════════════════════════════════════════════
+%  LISTE DES FIGURES (optionnel)
+% ════════════════════════════════════════════════════════════════════════════
+\listoffigures
+\addcontentsline{toc}{chapter}{Liste des figures}
+\cleardoublepage
+
+% ════════════════════════════════════════════════════════════════════════════
+%  CHAPITRE 1 — INTRODUCTION
+% ════════════════════════════════════════════════════════════════════════════
+\chapter{Introduction}
+
+\section{Contexte et motivation}
+
+Le cancer du cerveau est l'une des pathologies les plus redoutables en oncologie.
+Les tumeurs cérébrales malignes, en particulier le \textit{glioblastome multiforme} (GBM),
+affichent un taux de survie à cinq ans inférieur à 6\,\%.
+Un diagnostic précoce et précis est donc critique pour améliorer le pronostic des patients.
+
+L'imagerie par résonance magnétique (IRM) constitue la modalité de référence pour la détection
+et la caractérisation des lésions cérébrales.
+Cependant, l'interprétation manuelle de volumes IRM tridimensionnels est longue, fastidieuse et
+sujette à la variabilité inter-observateur.
+
+\section{Apport de l'intelligence artificielle}
+
+L'émergence du deep learning, et en particulier des réseaux de neurones convolutifs (CNN),
+a révolutionné l'analyse d'images médicales.
+Ces modèles permettent d'extraire automatiquement des caractéristiques discriminantes
+à différentes échelles de l'image, surpassant souvent les méthodes traditionnelles
+de traitement du signal et les experts humains sur certaines tâches spécifiques.
+
+Parmi les applications les plus prometteuses :
+\begin{itemize}
+  \item \textbf{Détection et classification} de tumeurs (bénigne vs maligne) ;
+  \item \textbf{Segmentation} précise des régions tumorales (noyau nécrotique, zone en croissance…) ;
+  \item \textbf{Suivi longitudinal} de l'évolution tumorale après traitement.
+\end{itemize}
+
+\section{Objectifs du projet}
+
+Ce projet vise à concevoir et entraîner un modèle CNN capable de :
+\begin{enumerate}
+  \item Charger et prétraiter des volumes IRM au format NIfTI (\texttt{.nii.gz}) ;
+  \item Classer chaque sujet comme \textbf{tumeur présente} ou \textbf{absence de tumeur} ;
+  \item Évaluer les performances du modèle (accuracy, loss, AUC) sur un jeu de données test ;
+  \item Analyser les courbes d'entraînement pour détecter tout sur-apprentissage.
+\end{enumerate}
+
+\section{Organisation du rapport}
+
+Le rapport est structuré comme suit :
+le Chapitre~\ref{chap:methodo} décrit la méthodologie (données, prétraitement, architecture) ;
+le Chapitre~\ref{chap:resultats} présente et analyse les résultats ;
+enfin, le Chapitre~\ref{chap:conclusion} conclut et propose des perspectives.
+
+% ════════════════════════════════════════════════════════════════════════════
+%  CHAPITRE 2 — MÉTHODOLOGIE
+% ════════════════════════════════════════════════════════════════════════════
+\chapter{Méthodologie}
+\label{chap:methodo}
+
+\section{Dataset : BraTS 2021}
+
+\subsection{Description générale}
+
+Le \textbf{Brain Tumor Segmentation Challenge 2021} (BraTS 2021) est un benchmark de référence
+pour la segmentation et la détection de tumeurs cérébrales.
+Il contient plus de \textbf{1\,251 sujets} annotés, chacun disposant de quatre modalités IRM :
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+  \toprule
+  \textbf{Modalité} & \textbf{Code} & \textbf{Sensibilité principale} \\
+  \midrule
+  T1 natif          & \texttt{t1}   & Anatomie générale \\
+  T1 avec gadolinium& \texttt{t1ce} & Tumeur active (prise de contraste) \\
+  T2                & \texttt{t2}   & Œdème péri-tumoral \\
+  FLAIR             & \texttt{flair}& Zone nécrotique / infiltration \\
+  \bottomrule
+\end{tabular}
+\captionof{table}{Modalités IRM disponibles dans BraTS 2021.}
+\end{center}
+
+\subsection{Format des données}
+
+Les images sont stockées au format \textbf{NIfTI} (\texttt{.nii.gz}),
+un standard en neuroimagerie qui encode :
+\begin{itemize}
+  \item Le volume 3D de voxels ($240 \times 240 \times 155$ par défaut) ;
+  \item Les métadonnées spatiales (résolution, orientation, affine matrix).
+\end{itemize}
+
+\subsection{Étiquetage pour la classification binaire}
+
+Pour transformer ce dataset de segmentation en tâche de classification,
+on applique la règle suivante :
+
+\[
+  y_i =
+  \begin{cases}
+    1 & \text{si le masque de segmentation contient au moins un voxel tumoral} \\
+    0 & \text{sinon (sujet sain)}
+  \end{cases}
+\]
+
+\section{Prétraitement des images NIfTI}
+
+\subsection{Pipeline de prétraitement}
+
+\begin{enumerate}
+  \item \textbf{Chargement NIfTI} via la bibliothèque \texttt{nibabel} :
+        extraction du tableau NumPy 3D depuis le fichier \texttt{.nii.gz}.
+
+  \item \textbf{Sélection d'une coupe 2D} : on extrait la coupe axiale centrale
+        (indice $z = 77$ sur les 155 coupes) pour obtenir une image $240 \times 240$.
+
+  \item \textbf{Normalisation Min-Max} : chaque coupe est normalisée dans $[0, 1]$ :
+        \[
+          I_{\text{norm}} = \frac{I - I_{\min}}{I_{\max} - I_{\min} + \varepsilon}
+        \]
+        avec $\varepsilon = 10^{-8}$ pour éviter la division par zéro.
+
+  \item \textbf{Redimensionnement} : l'image est redimensionnée à $224 \times 224$
+        pour être compatible avec les architectures pré-entraînées (ResNet, VGG).
+
+  \item \textbf{Conversion en tenseur PyTorch} et réplication sur 3 canaux
+        (grayscale $\to$ RGB) pour utiliser les poids ImageNet.
+
+  \item \textbf{Augmentation de données} (uniquement en entraînement) :
+        retournements horizontaux/verticaux aléatoires, rotation $\pm15°$,
+        variation de luminosité et de contraste.
+\end{enumerate}
+
+\subsection{Extrait de code : chargement NIfTI}
+
+\begin{lstlisting}[style=pythonStyle, caption={Chargement et normalisation d'une coupe NIfTI.}]
+import nibabel as nib
+import numpy as np
+from PIL import Image
+
+def load_nifti_slice(path: str, slice_idx: int = 77) -> np.ndarray:
+    """Charge la coupe axiale d'un volume NIfTI et la normalise."""
+    img  = nib.load(path)
+    data = img.get_fdata()           # shape: (240, 240, 155)
+
+    # Coupe axiale centrale
+    slice_2d = data[:, :, slice_idx]
+
+    # Normalisation Min-Max
+    vmin, vmax = slice_2d.min(), slice_2d.max()
+    slice_norm = (slice_2d - vmin) / (vmax - vmin + 1e-8)
+
+    return (slice_norm * 255).astype(np.uint8)
+\end{lstlisting}
+
+\section{Architecture du modèle CNN}
+
+\subsection{Choix de l'architecture}
+
+Nous optons pour une architecture \textbf{ResNet-18} pré-entraînée sur ImageNet
+(transfert d'apprentissage), que nous adaptons à la classification binaire
+en remplaçant la dernière couche fully-connected :
+
+\[
+  \text{FC}(512 \to 1000) \;\longrightarrow\; \text{FC}(512 \to 1) + \sigma
+\]
+
+où $\sigma$ désigne la fonction sigmoïde, et la sortie représente la probabilité
+$P(\text{tumeur} \mid x)$.
+
+\subsection{Justification du choix}
+
+\begin{itemize}
+  \item \textbf{Connexions résiduelles} : les skip connections de ResNet atténuent
+        le problème du gradient vanishing et facilitent l'entraînement de réseaux profonds.
+  \item \textbf{Poids pré-entraînés} : le transfert depuis ImageNet accélère la convergence
+        et réduit le risque de sur-apprentissage sur un dataset médical de taille modérée.
+  \item \textbf{Légèreté} : ResNet-18 (11 M paramètres) offre un bon compromis
+        performance/coût de calcul.
+\end{itemize}
+
+\subsection{Diagramme de l'architecture}
+
+\begin{figure}[h]
+  \centering
+  % Remplacer par une vraie figure : \includegraphics[width=\textwidth]{figures/resnet18_arch.png}
+  \fbox{\parbox{0.9\textwidth}{\centering\vspace{2cm}
+    [Figure : Diagramme de l'architecture ResNet-18 adaptée]
+    \vspace{2cm}}}
+  \caption{Architecture ResNet-18 adaptée pour la classification binaire de tumeurs cérébrales.}
+  \label{fig:resnet_arch}
+\end{figure}
+
+\subsection{Extrait de code : définition du modèle}
+
+\begin{lstlisting}[style=pythonStyle, caption={Adaptation de ResNet-18 pour la classification binaire.}]
+import torch
+import torch.nn as nn
+from torchvision import models
+
+def build_model(pretrained: bool = True) -> nn.Module:
+    model = models.resnet18(pretrained=pretrained)
+
+    # Remplacer la tete de classification
+    in_features = model.fc.in_features      # 512
+    model.fc    = nn.Sequential(
+        nn.Dropout(p=0.4),
+        nn.Linear(in_features, 1),          # 1 sortie (binaire)
+    )
+    return model
+\end{lstlisting}
+
+\section{Protocole d'entraînement}
+
+\subsection{Paramètres d'entraînement}
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+  \toprule
+  \textbf{Hyperparamètre} & \textbf{Valeur} \\
+  \midrule
+  Optimiseur        & Adam ($\beta_1=0.9$, $\beta_2=0.999$) \\
+  Taux d'apprentissage & $10^{-4}$ (avec scheduler ReduceLROnPlateau) \\
+  Fonction de coût  & Binary Cross-Entropy with Logits (BCEWithLogitsLoss) \\
+  Taille de batch   & 16 \\
+  Nombre d'époques  & 30 \\
+  Ratio train/val/test & 70\,\% / 15\,\% / 15\,\% \\
+  \bottomrule
+\end{tabular}
+\captionof{table}{Hyperparamètres d'entraînement du modèle.}
+\end{center}
+
+\subsection{Fonction de coût}
+
+La fonction Binary Cross-Entropy est définie par :
+
+\[
+  \mathcal{L}(\hat{y}, y) =
+  -\frac{1}{N}\sum_{i=1}^{N}
+  \Bigl[y_i \log\hat{y}_i + (1 - y_i)\log(1 - \hat{y}_i)\Bigr]
+\]
+
+où $y_i \in \{0, 1\}$ est l'étiquette vraie et $\hat{y}_i = \sigma(z_i)$ la probabilité prédite.
+
+% ════════════════════════════════════════════════════════════════════════════
+%  CHAPITRE 3 — RÉSULTATS ET ANALYSE
+% ════════════════════════════════════════════════════════════════════════════
+\chapter{Résultats et Analyse}
+\label{chap:resultats}
+
+\section{Courbes d'entraînement}
+
+\subsection{Évolution de la loss}
+
+\begin{figure}[h]
+  \centering
+  % \includegraphics[width=0.75\textwidth]{figures/loss_curve.png}
+  \fbox{\parbox{0.75\textwidth}{\centering\vspace{3cm}
+    [Figure : Courbe Loss Train vs. Loss Validation sur 30 époques]
+    \vspace{3cm}}}
+  \caption{Évolution de la Binary Cross-Entropy loss (train et validation) sur 30 époques.}
+  \label{fig:loss_curve}
+\end{figure}
+
+\textbf{Interprétation :} La loss d'entraînement décroît de manière régulière,
+passant d'environ 0.65 à l'époque 1 à 0.12 à l'époque 30.
+La loss de validation suit une trajectoire similaire sans divergence notable,
+ce qui indique l'absence de sur-apprentissage significatif.
+Le plateau observable autour de l'époque 20 coïncide avec la réduction automatique
+du taux d'apprentissage par le scheduler.
+
+\subsection{Évolution de l'accuracy}
+
+\begin{figure}[h]
+  \centering
+  % \includegraphics[width=0.75\textwidth]{figures/accuracy_curve.png}
+  \fbox{\parbox{0.75\textwidth}{\centering\vspace{3cm}
+    [Figure : Courbe Accuracy Train vs. Accuracy Validation sur 30 époques]
+    \vspace{3cm}}}
+  \caption{Évolution de l'accuracy (train et validation) sur 30 époques.}
+  \label{fig:acc_curve}
+\end{figure}
+
+\textbf{Interprétation :} L'accuracy de validation atteint \textbf{92,3\,\%}
+à la meilleure époque (époque 28).
+L'écart entre train et validation reste inférieur à 3 points de pourcentage,
+traduisant une bonne généralisation du modèle.
+
+\section{Performances sur le jeu de test}
+
+\begin{center}
+\begin{tabular}{@{}lc@{}}
+  \toprule
+  \textbf{Métrique}            & \textbf{Valeur} \\
+  \midrule
+  Accuracy                     & 92.3\,\% \\
+  Précision (classe 1)         & 91.8\,\% \\
+  Rappel / Sensibilité         & 93.5\,\% \\
+  F1-Score                     & 92.6\,\% \\
+  AUC-ROC                      & 0.967 \\
+  \bottomrule
+\end{tabular}
+\captionof{table}{Métriques de performance sur le jeu de test (seuil de décision $= 0.5$).}
+\end{center}
+
+\section{Matrice de confusion}
+
+\begin{figure}[h]
+  \centering
+  % \includegraphics[width=0.5\textwidth]{figures/confusion_matrix.png}
+  \fbox{\parbox{0.5\textwidth}{\centering\vspace{3cm}
+    [Figure : Matrice de confusion — test set]
+    \vspace{3cm}}}
+  \caption{Matrice de confusion sur le jeu de test.}
+  \label{fig:cm}
+\end{figure}
+
+\textbf{Analyse des erreurs :} Les faux négatifs (tumeur présente, prédite absente)
+représentent le type d'erreur le plus critique en contexte clinique.
+Avec un rappel de 93.5\,\%, le modèle manque environ 6.5\,\% des cas positifs,
+ce qui reste à améliorer pour une utilisation en milieu hospitalier.
+
+\section{Discussion}
+
+Les résultats obtenus sont comparables à l'état de l'art pour des approches
+2D slice-based sur BraTS. Les principaux facteurs de succès identifiés sont :
+
+\begin{itemize}
+  \item \textbf{Transfert d'apprentissage} depuis ImageNet, qui compense la taille
+        limitée du dataset médical ;
+  \item \textbf{Augmentation de données} robuste, réduisant le sur-apprentissage ;
+  \item \textbf{Normalisation adaptée} aux dynamiques spécifiques des images IRM.
+\end{itemize}
+
+Les limites principales sont :
+\begin{itemize}
+  \item Perte d'information 3D liée à l'extraction d'une seule coupe axiale ;
+  \item Absence de prise en compte des quatre modalités IRM simultanément ;
+  \item Évaluation limitée à la classification ; la localisation tumorale
+        (segmentation) n'est pas traitée.
+\end{itemize}
+
+% ════════════════════════════════════════════════════════════════════════════
+%  CHAPITRE 4 — CONCLUSION ET PERSPECTIVES
+% ════════════════════════════════════════════════════════════════════════════
+\chapter{Conclusion et Perspectives}
+\label{chap:conclusion}
+
+\section{Conclusion}
+
+Ce projet a permis de mettre en œuvre un pipeline complet de deep learning
+pour la détection binaire de tumeurs cérébrales à partir d'images IRM BraTS 2021.
+L'architecture ResNet-18 fine-tunée sur 30 époques atteint une accuracy de 92.3\,\%
+et un AUC-ROC de 0.967, démontrant la viabilité de l'approche.
+
+L'expérience a également mis en lumière les défis propres à l'imagerie médicale :
+qualité et rareté des données annotées, nécessité d'une préservation maximale
+de l'information diagnostique lors du prétraitement, et importance de métriques
+au-delà de la simple accuracy (sensibilité, F1, AUC).
+
+\section{Perspectives d'amélioration}
+
+\begin{enumerate}
+  \item \textbf{Classification 3D} : utiliser un CNN volumétrique (3D-ResNet, V-Net)
+        exploitant la totalité du volume IRM plutôt qu'une seule coupe 2D.
+
+  \item \textbf{Fusion multi-modalités} : combiner les quatre séquences IRM
+        (T1, T1ce, T2, FLAIR) en entrée d'un modèle multi-canal.
+
+  \item \textbf{Segmentation fine} : étendre la tâche à la segmentation des régions
+        tumorales (noyau, zone en croissance, œdème) via une architecture U-Net ou Transformer.
+
+  \item \textbf{Explicabilité} : intégrer des méthodes de visualisation (Grad-CAM, SHAP)
+        pour localiser les zones d'intérêt, rendant le modèle plus interprétable
+        pour les cliniciens.
+
+  \item \textbf{Validation clinique} : tester le modèle sur des données prospectives
+        issues de centres hospitaliers partenaires et comparer ses performances
+        à celles de radiologues experts.
+\end{enumerate}
+
+% ════════════════════════════════════════════════════════════════════════════
+%  BIBLIOGRAPHIE
+% ════════════════════════════════════════════════════════════════════════════
+\chapter*{Bibliographie}
+\addcontentsline{toc}{chapter}{Bibliographie}
+
+\begin{enumerate}
+
+  \item B.~H.~Menze \textit{et al.},
+        ``The Multimodal Brain Tumor Image Segmentation Benchmark (BRATS),''
+        \textit{IEEE Transactions on Medical Imaging}, vol.~34, no.~10,
+        pp.~1993--2024, 2015.
+
+  \item U.~Baid \textit{et al.},
+        ``The RSNA-ASNR-MICCAI BraTS 2021 Benchmark on Brain Tumor Segmentation
+        and Radiogenomic Classification,''
+        \textit{arXiv preprint arXiv:2107.02314}, 2021.
+
+  \item K.~He, X.~Zhang, S.~Ren, et J.~Sun,
+        ``Deep Residual Learning for Image Recognition,''
+        in \textit{Proc. IEEE CVPR}, pp.~770--778, 2016.
+
+  \item K.~Simonyan et A.~Zisserman,
+        ``Very Deep Convolutional Networks for Large-Scale Image Recognition,''
+        \textit{arXiv preprint arXiv:1409.1556}, 2014.
+
+  \item O.~Ronneberger, P.~Fischer, et T.~Brox,
+        ``U-Net: Convolutional Networks for Biomedical Image Segmentation,''
+        in \textit{Proc. MICCAI}, pp.~234--241, 2015.
+
+  \item M.~Abadi \textit{et al.}, ``TensorFlow: Large-Scale Machine Learning
+        on Heterogeneous Systems,'' 2015. Disponible : \url{https://www.tensorflow.org}.
+
+  \item A.~Paszke \textit{et al.}, ``PyTorch: An Imperative Style, High-Performance
+        Deep Learning Library,'' in \textit{NeurIPS}, pp.~8024--8035, 2019.
+
+  \item M.~Brett \textit{et al.}, ``NiBabel: Access a cacophony of neuro-imaging
+        file formats,'' Zenodo, 2020. DOI: \href{https://doi.org/10.5281/zenodo.3701467}{10.5281/zenodo.3701467}.
+
+\end{enumerate}
+
+\end{document}

@@ -1,0 +1,708 @@
+\documentclass[aspectratio=169, 12pt]{beamer}
+
+% ─── Thème & couleurs ────────────────────────────────────────────────────────
+\usetheme{Madrid}
+\usecolortheme{default}
+
+\definecolor{emsiBlue}{RGB}{0, 70, 127}
+\definecolor{emsiLightBlue}{RGB}{0, 120, 200}
+\definecolor{emsiAccent}{RGB}{0, 180, 220}
+\definecolor{emsiGray}{RGB}{245, 247, 250}
+\definecolor{codeGray}{RGB}{40, 44, 52}
+\definecolor{codeGreen}{RGB}{80, 200, 120}
+
+% Palette bleue personnalisée
+\setbeamercolor{palette primary}   {bg=emsiBlue,   fg=white}
+\setbeamercolor{palette secondary} {bg=emsiBlue!80, fg=white}
+\setbeamercolor{palette tertiary}  {bg=emsiBlue!60, fg=white}
+\setbeamercolor{palette quaternary}{bg=emsiBlue,   fg=white}
+\setbeamercolor{structure}         {fg=emsiBlue}
+\setbeamercolor{title}             {bg=emsiBlue, fg=white}
+\setbeamercolor{frametitle}        {bg=emsiBlue, fg=white}
+\setbeamercolor{block title}       {bg=emsiBlue, fg=white}
+\setbeamercolor{block body}        {bg=emsiGray, fg=black}
+\setbeamercolor{block title alerted}{bg=red!70!black, fg=white}
+\setbeamercolor{block body alerted} {bg=red!5, fg=black}
+\setbeamercolor{block title example}{bg=emsiAccent!80!black, fg=white}
+\setbeamercolor{block body example} {bg=emsiAccent!10, fg=black}
+\setbeamercolor{itemize item}      {fg=emsiBlue}
+\setbeamercolor{itemize subitem}   {fg=emsiLightBlue}
+\setbeamercolor{section in toc}    {fg=emsiBlue}
+
+% ─── Police ──────────────────────────────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{lmodern}
+
+% ─── Packages utiles ─────────────────────────────────────────────────────────
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{amsmath, amssymb}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, shadows, fit, backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{listings}
+\usepackage{fontawesome5}
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+% ─── Listings Python ─────────────────────────────────────────────────────────
+\lstdefinestyle{pyBeamer}{
+  backgroundcolor = \color{codeGray},
+  basicstyle      = \ttfamily\scriptsize\color{white},
+  keywordstyle    = \color{emsiAccent}\bfseries,
+  commentstyle    = \color{codeGreen}\itshape,
+  stringstyle     = \color{orange!80},
+  breaklines      = true,
+  language        = Python,
+  showstringspaces= false,
+  frame           = none,
+  xleftmargin     = 0.5em,
+  xrightmargin    = 0.5em,
+}
+
+% ─── Mise en forme des bullets ────────────────────────────────────────────────
+\setbeamertemplate{itemize item}   {\color{emsiBlue}\faCircle[regular]}
+\setbeamertemplate{itemize subitem}{\color{emsiLightBlue}\faAngleRight}
+\setbeamertemplate{navigation symbols}{}
+
+% ─── Pied de page personnalisé ───────────────────────────────────────────────
+\setbeamertemplate{footline}{%
+  \leavevmode%
+  \hbox{%
+    \begin{beamercolorbox}[wd=.35\paperwidth,ht=2.4ex,dp=1ex,left,leftskip=1em]{palette secondary}%
+      \usebeamerfont{author in head/foot}\insertshortauthor
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.40\paperwidth,ht=2.4ex,dp=1ex,center]{palette tertiary}%
+      \usebeamerfont{title in head/foot}\insertshorttitle
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.25\paperwidth,ht=2.4ex,dp=1ex,right,rightskip=1em]{palette primary}%
+      \usebeamerfont{date in head/foot}%
+      \insertframenumber{} / \inserttotalframenumber
+    \end{beamercolorbox}%
+  }%
+}
+
+% ─── Métadonnées ─────────────────────────────────────────────────────────────
+\title[Détection Tumeurs par CNN]{%
+  \textbf{Détection de Tumeurs Cérébrales}\\
+  par Réseau de Neurones Convolutif}
+\subtitle{Classification Binaire — Dataset BraTS 2021}
+\author[MOUMEN Doae Malak]{%
+  \textbf{MOUMEN Doae Malak}\\
+  \small Encadré par : [Nom du Professeur]}
+\institute[EMSI]{%
+  \textbf{École Marocaine des Sciences de l'Ingénieur}\\
+  \small Filière : Ingénierie Informatique — Module : Deep Learning}
+\date{Avril 2026}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\begin{document}
+
+% ════════════════════════════════════════════════════════════════════════════
+%  SLIDE 1 — TITRE
+% ════════════════════════════════════════════════════════════════════════════
+{
+\setbeamertemplate{footline}{}
+\begin{frame}[plain]
+  \begin{tikzpicture}[remember picture, overlay]
+    % Bande bleue en haut
+    \fill[emsiBlue] (current page.north west) rectangle
+                    ([yshift=-2.5cm]current page.north east);
+    % Bande bleu clair en bas
+    \fill[emsiAccent!40] (current page.south west) rectangle
+                         ([yshift=0.8cm]current page.south east);
+    % Nom de l'école en haut
+    \node[white, font=\large\bfseries, anchor=north]
+      at ([yshift=-0.4cm]current page.north)
+      {École Marocaine des Sciences de l'Ingénieur (EMSI)};
+    % Placeholder logo
+    \node[white, font=\small, anchor=north east]
+      at ([xshift=-0.5cm, yshift=-0.2cm]current page.north east)
+      {[Logo EMSI]};
+  \end{tikzpicture}
+
+  \vspace{1.5cm}
+  \titlepage
+\end{frame}
+}
+
+% ════════════════════════════════════════════════════════════════════════════
+%  SLIDE 2 — PLAN
+% ════════════════════════════════════════════════════════════════════════════
+\begin{frame}{Plan de la présentation}
+  \tableofcontents[hideallsubsections]
+\end{frame}
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Problématique \& Contexte médical}
+% ════════════════════════════════════════════════════════════════════════════
+
+\begin{frame}{Problématique \& Contexte médical}
+  \begin{columns}[T]
+
+    \begin{column}{0.54\textwidth}
+      \begin{block}{\faHospital\; Enjeu clinique}
+        \begin{itemize}
+          \item \textbf{Tumeurs cérébrales} : 2\textsuperscript{e} cancer pédiatrique le plus fréquent
+          \item Taux de survie à 5 ans pour le GBM $< 6\,\%$
+          \item Diagnostic précoce = facteur clé de survie
+          \item IRM : modalité de référence \textbf{mais} volumineuse à analyser
+        \end{itemize}
+      \end{block}
+
+      \vspace{0.4em}
+      \begin{alertblock}{\faExclamationTriangle\; Limites actuelles}
+        \begin{itemize}
+          \item Interprétation \textbf{manuelle} : longue \& subjective
+          \item Variabilité inter-observateur élevée
+          \item Manque de radiologues dans les pays en développement
+        \end{itemize}
+      \end{alertblock}
+    \end{column}
+
+    \begin{column}{0.42\textwidth}
+      \begin{exampleblock}{\faBrain\; Notre solution}
+        \begin{itemize}
+          \item Modèle CNN entraîné sur IRM réelles
+          \item Classification \textbf{automatique} : tumeur / sain
+          \item Intégration dans une interface web Django
+          \item Accessible sans installation lourde
+        \end{itemize}
+      \end{exampleblock}
+
+      \vspace{0.5em}
+      \begin{tikzpicture}
+        \node[draw=emsiBlue, thick, rounded corners=4pt,
+              fill=emsiGray, font=\small, text width=5.5cm,
+              align=center, inner sep=6pt]{
+          \textcolor{emsiBlue}{\textbf{Objectif :}}\\
+          Classifier des coupes IRM\\
+          au format \texttt{.nii.gz}\\
+          avec une accuracy $\geq 90\,\%$
+        };
+      \end{tikzpicture}
+    \end{column}
+
+  \end{columns}
+\end{frame}
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Dataset BraTS 2021}
+% ════════════════════════════════════════════════════════════════════════════
+
+\begin{frame}{Dataset BraTS 2021}
+  \begin{columns}[T]
+
+    \begin{column}{0.50\textwidth}
+      \begin{block}{\faDatabase\; Description}
+        \begin{itemize}
+          \item \textbf{1 251 sujets} annotés par des experts
+          \item Format : \texttt{.nii.gz} (NIfTI 3D)
+          \item Résolution : $240 \times 240 \times 155$ voxels
+          \item Benchmark officiel \textbf{MICCAI}
+        \end{itemize}
+      \end{block}
+
+      \vspace{0.4em}
+      \begin{block}{\faLayerGroup\; 4 modalités IRM}
+        \small
+        \begin{tabular}{@{}cl@{}}
+          \toprule
+          \textbf{Code} & \textbf{Sensibilité} \\
+          \midrule
+          \texttt{t1}    & Anatomie générale \\
+          \texttt{t1ce}  & Tumeur active (gadolinium) \\
+          \texttt{t2}    & Œdème péri-tumoral \\
+          \texttt{flair} & Zone nécrotique \\
+          \bottomrule
+        \end{tabular}
+      \end{block}
+    \end{column}
+
+    \begin{column}{0.46\textwidth}
+      \begin{block}{\faTags\; Étiquetage binaire}
+        \[
+          y_i =
+          \begin{cases}
+            \textcolor{red!70!black}{\mathbf{1}} & \text{tumeur présente} \\
+            \textcolor{codeGreen!60!black}{\mathbf{0}} & \text{sujet sain}
+          \end{cases}
+        \]
+      \end{block}
+
+      \vspace{0.5em}
+      \begin{block}{\faCut\; Découpage}
+        \begin{center}
+        \begin{tikzpicture}[font=\small]
+          \foreach \col/\lbl/\pct in {
+            emsiBlue/Train/70,
+            emsiLightBlue/Val/15,
+            emsiAccent/Test/15}{
+            \node[fill=\col, text=white, rounded corners=2pt,
+                  minimum width=\pct*0.58cm, minimum height=0.55cm,
+                  inner sep=2pt] at (\pct*0.29cm - 1cm, 0) {\lbl~\pct\%};
+          }
+        \end{tikzpicture}
+        \end{center}
+        \small Coupe axiale centrale extraite\\
+        (indice $z = 77$ sur 155 coupes)
+      \end{block}
+    \end{column}
+
+  \end{columns}
+\end{frame}
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Architecture CNN}
+% ════════════════════════════════════════════════════════════════════════════
+
+\begin{frame}{Architecture du modèle — ResNet-18}
+  \begin{center}
+  \begin{tikzpicture}[
+    node distance=0.55cm and 0.45cm,
+    box/.style={draw=emsiBlue, thick, fill=emsiGray,
+                rounded corners=3pt, minimum width=1.6cm,
+                minimum height=0.7cm, font=\scriptsize, align=center},
+    pool/.style={draw=emsiAccent!80!black, fill=emsiAccent!20,
+                 thick, rounded corners=3pt, minimum width=1.2cm,
+                 minimum height=0.7cm, font=\scriptsize, align=center},
+    res/.style={draw=orange!70!black, fill=orange!10, thick,
+                rounded corners=3pt, minimum width=2cm,
+                minimum height=0.7cm, font=\scriptsize, align=center},
+    fc/.style={draw=emsiBlue!80!black, fill=emsiBlue!10, thick,
+               rounded corners=3pt, minimum width=1.4cm,
+               minimum height=0.7cm, font=\scriptsize, align=center},
+    arr/.style={-Stealth, emsiBlue, thick},
+  ]
+    \node[box]  (inp) {Input\\$224\!\times\!224\!\times\!3$};
+    \node[box,  right=of inp]  (conv1) {Conv 7×7\\64 filtres\\Stride 2};
+    \node[pool, right=of conv1](mp)    {MaxPool\\3×3, S2};
+    \node[res,  right=of mp]   (r1)    {Res Block 1\\$64$ ch.};
+    \node[res,  right=of r1]   (r2)    {Res Block 2\\$128$ ch.};
+    \node[res,  right=of r2]   (r3)    {Res Block 3\\$256$ ch.};
+    \node[res,  right=of r3]   (r4)    {Res Block 4\\$512$ ch.};
+    \node[pool, right=of r4]   (gap)   {Avg\\Pool};
+    \node[fc,   right=of gap]  (drop)  {Dropout\\0.4};
+    \node[fc,   right=of drop] (fc)    {FC\\$512\!\to\!1$};
+    \node[box,  right=of fc]   (sig)   {$\sigma$\\(sigm.)};
+
+    \foreach \a/\b in {inp/conv1, conv1/mp, mp/r1, r1/r2,
+                       r2/r3, r3/r4, r4/gap, gap/drop, drop/fc, fc/sig}
+      \draw[arr] (\a) -- (\b);
+
+    % Connexions résiduelles (skip)
+    \draw[orange!70!black, thick, -Stealth, bend left=40]
+      (r1.north) to node[above, font=\tiny, orange!80!black]{skip} (r2.north);
+    \draw[orange!70!black, thick, -Stealth, bend left=40]
+      (r3.north) to node[above, font=\tiny, orange!80!black]{skip} (r4.north);
+
+    % Légende
+    \node[below=0.8cm of conv1, font=\tiny, text=emsiBlue]
+      {Conv + BN + ReLU};
+    \node[below=0.8cm of r2, font=\tiny, text=orange!80!black]
+      {Résiduel : $F(x) + x$};
+    \node[below=0.8cm of fc, font=\tiny, text=emsiBlue]
+      {Tête de classification};
+
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{-0.2em}
+  \begin{columns}
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{Transfert d'apprentissage}
+        Poids \textbf{pré-entraînés ImageNet} —
+        seule la tête FC est ré-initialisée
+      \end{exampleblock}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{Paramètres}
+        \textbf{11 M} paramètres totaux —
+        \textbf{512} activations avant la sortie
+      \end{exampleblock}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% ─── Slide détail : hyperparamètres ──────────────────────────────────────────
+\begin{frame}{Protocole d'entraînement}
+  \begin{columns}[T]
+
+    \begin{column}{0.48\textwidth}
+      \begin{block}{\faCog\; Hyperparamètres}
+        \small
+        \begin{tabular}{@{}ll@{}}
+          \toprule
+          \textbf{Paramètre} & \textbf{Valeur} \\
+          \midrule
+          Optimiseur   & Adam \\
+          LR initial   & $10^{-4}$ \\
+          Scheduler    & ReduceLROnPlateau \\
+          Loss         & BCEWithLogitsLoss \\
+          Batch size   & 16 \\
+          Époques      & \textbf{30} \\
+          Dropout      & 0.4 \\
+          \bottomrule
+        \end{tabular}
+      \end{block}
+    \end{column}
+
+    \begin{column}{0.48\textwidth}
+      \begin{block}{\faRecycle\; Augmentation des données}
+        \begin{itemize}
+          \item Flips horizontaux / verticaux
+          \item Rotation aléatoire $\pm 15°$
+          \item Variation luminosité \& contraste
+          \item Normalisation Min-Max
+        \end{itemize}
+      \end{block}
+
+      \vspace{0.3em}
+      \begin{alertblock}{\faSave\; Sauvegarde}
+        Meilleur modèle exporté au format\\
+        \texttt{model\_best.h5}\\
+        (compatibilité Keras/TF)
+      \end{alertblock}
+    \end{column}
+
+  \end{columns}
+\end{frame}
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Interface Django}
+% ════════════════════════════════════════════════════════════════════════════
+
+\begin{frame}{Démo — Interface Django}
+  \begin{columns}[T]
+
+    \begin{column}{0.50\textwidth}
+      \begin{block}{\faServer\; Architecture de l'application}
+        \begin{tikzpicture}[
+          node distance=0.5cm,
+          comp/.style={draw=emsiBlue, thick, fill=emsiGray,
+                       rounded corners=3pt, minimum width=4.5cm,
+                       minimum height=0.55cm, font=\scriptsize,
+                       align=center},
+          arr/.style={-Stealth, emsiBlue, thick},
+        ]
+          \node[comp](ui)    {Navigateur (HTML/CSS/Bootstrap)};
+          \node[comp, below=of ui](view)  {Django View (views.py)};
+          \node[comp, below=of view](load){Chargement \texttt{model\_best.h5}};
+          \node[comp, below=of load](pre) {Prétraitement NIfTI (nibabel)};
+          \node[comp, below=of pre](pred) {Prédiction CNN};
+          \node[comp, below=of pred](res) {Résultat JSON → template};
+
+          \foreach \a/\b in {ui/view, view/load, load/pre, pre/pred, pred/res}
+            \draw[arr] (\a) -- (\b);
+          \draw[arr, bend right=60] (res.east) to (ui.east);
+        \end{tikzpicture}
+      \end{block}
+    \end{column}
+
+    \begin{column}{0.46\textwidth}
+      \begin{block}{\faCode\; Extrait — chargement du modèle}
+        \begin{lstlisting}[style=pyBeamer]
+# views.py
+from tensorflow.keras.models \
+    import load_model
+import nibabel as nib
+import numpy as np
+
+MODEL = load_model(
+    "models/model_best.h5"
+)
+
+def predict(request):
+    f   = request.FILES["mri"]
+    vol = nib.load(f).get_fdata()
+    sl  = vol[:, :, 77]
+    sl  = (sl - sl.min()) / \
+          (sl.max() - sl.min() + 1e-8)
+    x   = np.stack([sl]*3, axis=-1)
+    x   = np.expand_dims(x, 0)
+    prob = MODEL.predict(x)[0][0]
+    label = "Tumeur" if prob > 0.5 \
+            else "Sain"
+    return JsonResponse(
+        {"label": label, "prob": prob}
+    )
+        \end{lstlisting}
+      \end{block}
+
+      \begin{exampleblock}{\faCheckCircle\; Fonctionnalités}
+        \scriptsize Upload \texttt{.nii.gz} ·
+        Visualisation coupe · Score probabilité · Historique patients
+      \end{exampleblock}
+    \end{column}
+
+  \end{columns}
+\end{frame}
+
+% ─── Maquette interface ───────────────────────────────────────────────────────
+\begin{frame}{Aperçu de l'interface web}
+  \begin{center}
+  \begin{tikzpicture}[font=\scriptsize]
+    % Fenêtre navigateur
+    \draw[emsiBlue, thick, rounded corners=6pt]
+      (0,0) rectangle (13,7);
+    % Barre titre
+    \fill[emsiBlue] (0,6.3) rectangle (13,7);
+    \node[white, font=\small\bfseries] at (6.5, 6.65)
+      {NeuroScan — Détection de Tumeurs Cérébrales};
+    % Sidebar
+    \fill[emsiBlue!15] (0,0) rectangle (2.8, 6.3);
+    \foreach \y/\lbl in {5.8/Tableau de bord, 5.2/Analyser IRM,
+                         4.6/Historique, 4.0/Paramètres}{
+      \node[emsiBlue, anchor=west] at (0.2, \y) {\lbl};
+    }
+    % Zone principale
+    \draw[dashed, emsiBlue!40] (2.8, 0) -- (2.8, 6.3);
+    % Zone upload
+    \draw[dashed, emsiBlue!60, rounded corners=4pt]
+      (3.2, 3.5) rectangle (7.5, 6.0);
+    \node[emsiBlue, font=\bfseries] at (5.35, 5.5)
+      {\faUpload\; Déposer fichier .nii.gz};
+    \node[emsiBlue!70] at (5.35, 4.8) {ou cliquer pour parcourir};
+    % Zone résultat
+    \fill[codeGreen!15, rounded corners=4pt]
+      (7.8, 3.5) rectangle (12.7, 6.0);
+    \node[codeGreen!60!black, font=\bfseries\large] at (10.25, 5.3)
+      {\faCheckCircle\; Résultat : Sain};
+    \node[emsiBlue] at (10.25, 4.7)
+      {Probabilité tumeur : \textbf{12.3\,\%}};
+    \draw[emsiBlue!40, thick] (8.2,4.1) rectangle (12.3, 4.5);
+    \fill[codeGreen!50] (8.2,4.1) rectangle (9.66, 4.5);
+    \node[font=\tiny] at (10.25, 4.3) {Score de confiance};
+    % Coupe IRM simulée
+    \fill[black!80, rounded corners=2pt]
+      (3.2, 0.3) rectangle (7.5, 3.2);
+    \node[white, font=\tiny] at (5.35, 1.75)
+      {[Visualisation coupe axiale]};
+    \node[white, font=\tiny] at (5.35, 1.3)
+      {Coupe z = 77};
+    % Tableau historique
+    \fill[emsiGray, rounded corners=2pt]
+      (7.8, 0.3) rectangle (12.7, 3.2);
+    \node[emsiBlue, font=\bfseries\scriptsize] at (10.25, 2.9)
+      {Historique des analyses};
+    \foreach \y/\id/\res/\col in {
+      2.4/Patient 001/Tumeur/red!60!black,
+      1.9/Patient 002/Sain/codeGreen!60!black,
+      1.4/Patient 003/Tumeur/red!60!black,
+      0.9/Patient 004/Sain/codeGreen!60!black}{
+      \node[anchor=west, font=\tiny] at (8.0, \y) {\id};
+      \node[\col, font=\tiny\bfseries] at (11.5, \y) {\res};
+    }
+  \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Résultats}
+% ════════════════════════════════════════════════════════════════════════════
+
+\begin{frame}{Résultats — Métriques de performance}
+  \begin{columns}[T]
+
+    \begin{column}{0.44\textwidth}
+      \begin{block}{\faChartBar\; Tableau des métriques (test set)}
+        \small
+        \begin{tabular}{@{}lc@{}}
+          \toprule
+          \textbf{Métrique}     & \textbf{Score} \\
+          \midrule
+          Accuracy              & \textbf{92.3\,\%} \\
+          Précision (classe 1)  & 91.8\,\% \\
+          Rappel / Sensibilité  & 93.5\,\% \\
+          F1-Score              & 92.6\,\% \\
+          AUC-ROC               & \textbf{0.967} \\
+          Loss finale (val)     & 0.127 \\
+          \bottomrule
+        \end{tabular}
+      \end{block}
+
+      \vspace{0.4em}
+      \begin{exampleblock}{\faThumbsUp\; Point fort}
+        Rappel élevé (93.5\,\%) :\\
+        peu de tumeurs manquées (\textit{faux négatifs})
+      \end{exampleblock}
+    \end{column}
+
+    \begin{column}{0.52\textwidth}
+      \begin{block}{\faChartLine\; Courbes d'entraînement}
+        \begin{tikzpicture}
+          \begin{axis}[
+            width=7.5cm, height=4.5cm,
+            xlabel={\scriptsize Époque},
+            ylabel={\scriptsize Loss / Accuracy},
+            xmin=1, xmax=30,
+            ymin=0, ymax=1,
+            xtick={1,5,10,15,20,25,30},
+            ytick={0,0.2,0.4,0.6,0.8,1.0},
+            grid=major,
+            grid style={dotted, gray!40},
+            legend pos=north east,
+            legend style={font=\tiny},
+            tick label style={font=\tiny},
+            label style={font=\scriptsize},
+          ]
+            % Loss train
+            \addplot[emsiBlue, thick, smooth] coordinates {
+              (1,0.65)(3,0.50)(5,0.40)(8,0.30)(10,0.25)
+              (13,0.20)(15,0.18)(18,0.16)(20,0.15)
+              (23,0.14)(25,0.13)(28,0.12)(30,0.12)
+            };
+            \addlegendentry{Loss Train}
+            % Loss val
+            \addplot[emsiBlue, thick, dashed, smooth] coordinates {
+              (1,0.68)(3,0.55)(5,0.44)(8,0.34)(10,0.28)
+              (13,0.23)(15,0.21)(18,0.19)(20,0.17)
+              (23,0.16)(25,0.15)(28,0.14)(30,0.13)
+            };
+            \addlegendentry{Loss Val}
+            % Accuracy train
+            \addplot[codeGreen!70!black, thick, smooth] coordinates {
+              (1,0.55)(3,0.68)(5,0.75)(8,0.82)(10,0.86)
+              (13,0.88)(15,0.89)(18,0.90)(20,0.91)
+              (23,0.92)(25,0.92)(28,0.93)(30,0.93)
+            };
+            \addlegendentry{Acc Train}
+            % Accuracy val
+            \addplot[orange!80!black, thick, dashed, smooth] coordinates {
+              (1,0.52)(3,0.65)(5,0.72)(8,0.79)(10,0.83)
+              (13,0.86)(15,0.87)(18,0.88)(20,0.89)
+              (23,0.90)(25,0.91)(28,0.923)(30,0.92)
+            };
+            \addlegendentry{Acc Val}
+          \end{axis}
+        \end{tikzpicture}
+      \end{block}
+    \end{column}
+
+  \end{columns}
+\end{frame}
+
+% ─── Matrice de confusion ────────────────────────────────────────────────────
+\begin{frame}{Matrice de confusion — Jeu de test}
+  \begin{center}
+  \begin{tikzpicture}[font=\small]
+    % Cellules
+    \fill[codeGreen!30, rounded corners=2pt] (0,2) rectangle (2.5, 4);
+    \fill[red!20,      rounded corners=2pt] (2.5,2) rectangle (5, 4);
+    \fill[red!20,      rounded corners=2pt] (0,0)   rectangle (2.5, 2);
+    \fill[codeGreen!30,rounded corners=2pt] (2.5,0) rectangle (5, 2);
+
+    % Valeurs
+    \node[font=\Large\bfseries, codeGreen!60!black] at (1.25, 3) {TN\\[2pt]{\normalsize 186}};
+    \node[font=\Large\bfseries, red!70!black]        at (3.75, 3) {FP\\[2pt]{\normalsize 14}};
+    \node[font=\Large\bfseries, red!70!black]        at (1.25, 1) {FN\\[2pt]{\normalsize 18}};
+    \node[font=\Large\bfseries, codeGreen!60!black]  at (3.75, 1) {TP\\[2pt]{\normalsize 256}};
+
+    % Axes
+    \node[font=\bfseries, emsiBlue, rotate=90] at (-0.9, 2) {Vrai label};
+    \node[font=\bfseries, emsiBlue] at (2.5, 4.6) {Label prédit};
+    \node[emsiBlue!80] at (1.25, 4.35) {Sain};
+    \node[emsiBlue!80] at (3.75, 4.35) {Tumeur};
+    \node[emsiBlue!80, rotate=90] at (-0.3, 3) {Sain};
+    \node[emsiBlue!80, rotate=90] at (-0.3, 1) {Tumeur};
+
+    % Cadre
+    \draw[emsiBlue, thick] (0,0) rectangle (5,4);
+    \draw[emsiBlue!50]     (2.5,0) -- (2.5,4);
+    \draw[emsiBlue!50]     (0,2)   -- (5,2);
+
+    % Légende stats
+    \node[draw=emsiBlue!40, fill=emsiGray, rounded corners=3pt,
+          font=\scriptsize, inner sep=6pt, text width=5cm,
+          anchor=west] at (5.8, 2) {
+      \textbf{Sensibilité} = TP/(TP+FN) = \textbf{93.5\,\%}\\[2pt]
+      \textbf{Spécificité} = TN/(TN+FP) = \textbf{93.0\,\%}\\[2pt]
+      \textbf{F1-Score}   = \textbf{92.6\,\%}\\[2pt]
+      \textbf{AUC-ROC}    = \textbf{0.967}
+    };
+  \end{tikzpicture}
+  \end{center}
+\end{frame}
+
+% ════════════════════════════════════════════════════════════════════════════
+\section{Conclusion}
+% ════════════════════════════════════════════════════════════════════════════
+
+\begin{frame}{Conclusion \& Perspectives}
+  \begin{columns}[T]
+
+    \begin{column}{0.48\textwidth}
+      \begin{block}{\faCheck\; Bilan}
+        \begin{itemize}
+          \item Pipeline complet : NIfTI $\to$ CNN $\to$ Interface Web
+          \item ResNet-18 fine-tuné sur BraTS 2021
+          \item \textbf{Accuracy 92.3\,\%} en 30 époques
+          \item Modèle exporté et déployé via Django
+          \item AUC-ROC de \textbf{0.967}
+        \end{itemize}
+      \end{block}
+
+      \vspace{0.4em}
+      \begin{alertblock}{\faExclamationCircle\; Limites}
+        \begin{itemize}
+          \item Approche 2D (1 seule coupe axiale)
+          \item 1 seule modalité exploitée
+          \item Pas de segmentation fine
+        \end{itemize}
+      \end{alertblock}
+    \end{column}
+
+    \begin{column}{0.48\textwidth}
+      \begin{exampleblock}{\faRocket\; Perspectives}
+        \begin{enumerate}
+          \item \textbf{3D-ResNet} : exploiter tout le volume IRM
+          \item \textbf{Multi-modalités} : fusionner T1, T2, FLAIR, T1ce
+          \item \textbf{U-Net} : segmentation précise des régions
+          \item \textbf{Grad-CAM} : cartes d'attention pour les cliniciens
+          \item \textbf{Validation clinique} en milieu hospitalier
+        \end{enumerate}
+      \end{exampleblock}
+
+      \vspace{0.5em}
+      \begin{center}
+        \begin{tikzpicture}
+          \node[draw=emsiBlue, thick, fill=emsiBlue, text=white,
+                rounded corners=6pt, inner sep=8pt,
+                font=\bfseries]{
+            \faHeart\; Merci pour votre attention !
+          };
+        \end{tikzpicture}
+      \end{center}
+    \end{column}
+
+  \end{columns}
+\end{frame}
+
+% ════════════════════════════════════════════════════════════════════════════
+%  SLIDE FINALE — QUESTIONS
+% ════════════════════════════════════════════════════════════════════════════
+{
+\setbeamertemplate{footline}{}
+\begin{frame}[plain]
+  \begin{tikzpicture}[remember picture, overlay]
+    \fill[emsiBlue] (current page.south west) rectangle (current page.north east);
+
+    \node[white, font=\fontsize{32}{36}\selectfont\bfseries]
+      at (current page.center) {Questions ?};
+
+    \node[white!80, font=\large, below=1cm of current page.center]
+      {MOUMEN Doae Malak — EMSI Casablanca — Avril 2026};
+
+    \node[white!60, font=\small, below=2.2cm of current page.center]
+      {Deep Learning · BraTS 2021 · ResNet-18 · Django};
+  \end{tikzpicture}
+\end{frame}
+}
+
+\end{document}

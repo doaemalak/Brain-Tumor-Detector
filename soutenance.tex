@@ -1,0 +1,581 @@
+% ============================================================
+%  PRÉSENTATION DE SOUTENANCE — BrainScan AI
+%  Auteurs   : MOUMEN Doae Malak & SOUALHINE Douaa
+%  Encadrant : Pr. BENLAKHDAR Said
+%  École     : EMSI
+%  Compiler  : pdflatex  (Overleaf : Ctrl+S → compile)
+% ============================================================
+
+\documentclass[aspectratio=169, 12pt, compress]{beamer}
+
+% ── Encodage & langue ──────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+% ── Graphiques ─────────────────────────────────────────────
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, shadows, overlay-beamer-styles}
+
+% ── Tableaux & maths ───────────────────────────────────────
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{colortbl}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% ── Icônes légères sans FontAwesome ────────────────────────
+\usepackage{pifont}
+\newcommand{\cmark}{\textcolor{EMSIgreen}{\ding{51}}}
+\newcommand{\xmark}{\textcolor{EMSIred}{\ding{55}}}
+
+% ── Boîtes colorées dans Beamer ────────────────────────────
+\usepackage{tcolorbox}
+\tcbuselibrary{skins}
+
+% ============================================================
+%  THÈME ET COULEURS
+% ============================================================
+\usetheme{Madrid}
+\usecolortheme{default}
+
+% Palette EMSI — bleu marine + gris acier
+\definecolor{EMSIblue}{RGB}{12,  55, 103}   % bleu marine EMSI
+\definecolor{EMSIblue2}{RGB}{0, 102, 179}   % bleu clair accent
+\definecolor{EMSIgray}{RGB}{75,  85,  95}   % gris acier
+\definecolor{EMSIlight}{RGB}{235,242,250}   % bleu très clair fond
+\definecolor{EMSIgreen}{RGB}{39, 174,  96}  % vert verdict sain
+\definecolor{EMSIred}{RGB}{192,  57,  43}   % rouge verdict tumeur
+\definecolor{EMSIorange}{RGB}{211,  84,   0} % orange zone incertitude
+
+% Application des couleurs sur la structure Beamer
+\setbeamercolor{structure}{fg=EMSIblue}
+\setbeamercolor{palette primary}{bg=EMSIblue,    fg=white}
+\setbeamercolor{palette secondary}{bg=EMSIblue2, fg=white}
+\setbeamercolor{palette tertiary}{bg=EMSIgray,   fg=white}
+\setbeamercolor{palette quaternary}{bg=EMSIblue, fg=white}
+\setbeamercolor{frametitle}{bg=EMSIblue, fg=white}
+\setbeamercolor{title}{bg=EMSIblue, fg=white}
+\setbeamercolor{block title}{bg=EMSIblue2, fg=white}
+\setbeamercolor{block body}{bg=EMSIlight, fg=black}
+\setbeamercolor{block title alerted}{bg=EMSIred, fg=white}
+\setbeamercolor{block body alerted}{bg=red!5, fg=black}
+\setbeamercolor{block title example}{bg=EMSIgreen!80!black, fg=white}
+\setbeamercolor{block body example}{bg=green!5, fg=black}
+
+% Police sans-serif propre
+\usefonttheme{professionalfonts}
+\setbeamerfont{frametitle}{series=\bfseries, size=\large}
+\setbeamerfont{title}{series=\bfseries, size=\LARGE}
+
+% Bullets ronds et lisibles
+\setbeamertemplate{itemize item}{\color{EMSIblue2}\textbullet}
+\setbeamertemplate{itemize subitem}{\color{EMSIgray}$\circ$}
+\setbeamertemplate{navigation symbols}{}   % supprimer les boutons nav
+
+% ============================================================
+%  LOGO EMSI — coin supérieur gauche sur chaque diapositive
+%  --> Remplacez 'logo_emsi' par le chemin réel de votre logo
+%      (ex. : logo_emsi.png placé dans le même dossier)
+% ============================================================
+\addtobeamertemplate{frametitle}{}{%
+  \begin{tikzpicture}[remember picture, overlay]
+    \node[anchor=north west, inner sep=5pt]
+      at (current page.north west)
+      {\includegraphics[height=0.72cm]{logo_emsi}};
+  \end{tikzpicture}%
+}
+
+% ============================================================
+%  MÉTADONNÉES
+% ============================================================
+\title[BrainScan AI]{%
+  Détection Automatique de Tumeurs Cérébrales\\[4pt]
+  par Deep Learning\\[2pt]
+  {\normalsize\textit{BrainScan AI}}}
+
+\subtitle{Projet de Fin d'Études}
+
+\author[MOUMEN \& SOUALHINE]{%
+  \textbf{MOUMEN Doae Malak} \quad\&\quad \textbf{SOUALHINE Douaa}\\[4pt]
+  {\small Encadrant : Pr.~BENLAKHDAR Said}}
+
+\institute[EMSI]{%
+  École Marocaine des Sciences de l'Ingénieur (EMSI)\\
+  Département Informatique \& Intelligence Artificielle}
+
+\date{Soutenance PFE — 2024--2025}
+
+% ============================================================
+%  COMMANDES UTILITAIRES
+% ============================================================
+\newcommand{\code}[1]{\texttt{\small #1}}
+
+% Boîte résultat colorée
+\newtcolorbox{resultbox}[2][]{
+  enhanced, sharp corners,
+  colback=#2!8, colframe=#2!70!black,
+  fonttitle=\bfseries\small, title=#1,
+  left=4pt, right=4pt, top=3pt, bottom=3pt,
+  boxrule=0.6pt,
+}
+
+% ============================================================
+\begin{document}
+% ============================================================
+
+% ── PAGE DE GARDE ──────────────────────────────────────────
+\begin{frame}[plain]
+  \begin{tikzpicture}[remember picture, overlay]
+    % Bandeau supérieur bleu
+    \fill[EMSIblue] (current page.north west)
+      rectangle ([yshift=-1.8cm]current page.north east);
+    % Bandeau inférieur gris
+    \fill[EMSIgray!80] (current page.south west)
+      rectangle ([yshift=1.0cm]current page.south east);
+    % Logo EMSI — haut gauche
+    \node[anchor=north west, inner sep=10pt]
+      at (current page.north west)
+      {\includegraphics[height=1.1cm]{logo_emsi}};
+    % Texte institution
+    \node[anchor=north east, inner sep=10pt, white, font=\small\itshape]
+      at (current page.north east)
+      {École Marocaine des Sciences de l'Ingénieur};
+  \end{tikzpicture}
+
+  \vspace{0.5cm}
+  \titlepage
+\end{frame}
+
+% ── TABLE DES MATIÈRES ─────────────────────────────────────
+\begin{frame}{Plan de la Présentation}
+  \tableofcontents[hideallsubsections]
+\end{frame}
+
+% ============================================================
+%  SECTION 1 — INTRODUCTION & PROBLÉMATIQUE
+% ============================================================
+\section{Introduction et Problématique}
+
+\begin{frame}{Contexte Médical et Enjeux}
+
+  \begin{columns}[T]
+
+    % Colonne gauche : chiffres clés
+    \begin{column}{0.44\textwidth}
+      \begin{alertblock}{Données épidémiologiques}
+        \begin{itemize}
+          \item Taux de survie à 5 ans\\
+                \textbf{< 10\,\%} pour les glioblastomes
+          \item Diagnostic manuel~: des centaines de coupes
+                IRM par patient, sujet à l'erreur humaine
+          \item \textbf{Détection précoce} = principal
+                facteur pronostique
+        \end{itemize}
+      \end{alertblock}
+
+      \vspace{6pt}
+
+      \begin{block}{Verrou scientifique}
+        Comment automatiser la lecture d'un volume IRM
+        3D pour détecter une lésion en quelques secondes,
+        sans expertise radiologique sur place~?
+      \end{block}
+    \end{column}
+
+    % Colonne droite : proposition de valeur
+    \begin{column}{0.52\textwidth}
+      \begin{exampleblock}{Notre réponse~: BrainScan AI}
+        \begin{itemize}
+          \item[\cmark] Application web \textbf{Django}
+                        accessible via navigateur
+          \item[\cmark] Modèle \textbf{ResNet50} fine-tuné
+                        sur BraTS~2021
+          \item[\cmark] Résultat en \textbf{< 3 secondes}
+                        après upload
+          \item[\cmark] Interface orientée
+                        \textit{réassurance} patient
+          \item[\cmark] Seuil de décision calculé
+                        \textbf{automatiquement} (Youden)
+        \end{itemize}
+      \end{exampleblock}
+
+      \vspace{6pt}
+      \begin{tikzpicture}
+        \node[rounded corners=4pt, fill=EMSIlight,
+              draw=EMSIblue2, inner sep=6pt,
+              font=\small, text width=0.90\columnwidth]{%
+          \textbf{Dataset~:} BraTS 2021 \\
+          \textbf{Format entrée~:} \code{.nii.gz} (NIfTI) \\
+          \textbf{Sortie~:} Probabilité tumorale + verdict
+        };
+      \end{tikzpicture}
+    \end{column}
+
+  \end{columns}
+\end{frame}
+
+% ============================================================
+%  SECTION 2 — MÉTHODOLOGIE TECHNIQUE
+% ============================================================
+\section{Méthodologie Technique}
+
+\begin{frame}{Architecture et Pipeline de Traitement}
+
+  % Diagramme pipeline (TikZ)
+  \begin{center}
+  \begin{tikzpicture}[
+    node distance=0.35cm and 0.55cm,
+    box/.style={
+      draw=EMSIblue, fill=EMSIlight,
+      rounded corners=3pt, align=center,
+      minimum height=0.72cm, minimum width=2.1cm,
+      font=\scriptsize\bfseries
+    },
+    arr/.style={-{Stealth[length=4pt]}, EMSIblue2, thick}
+  ]
+    \node[box] (A) {IRM\\NIfTI};
+    \node[box, right=of A] (B) {Coupe\\axiale \#75};
+    \node[box, right=of B] (C) {Z-Score\\Dataset};
+    \node[box, right=of C] (D) {CLAHE};
+    \node[box, right=of D] (E) {ResNet50\\224×224};
+    \node[box, right=of E] (F) {Inversion\\$1-p$};
+    \node[box, right=of F] (G) {Seuil\\Youden};
+
+    \draw[arr] (A)--(B); \draw[arr] (B)--(C);
+    \draw[arr] (C)--(D); \draw[arr] (D)--(E);
+    \draw[arr] (E)--(F); \draw[arr] (F)--(G);
+  \end{tikzpicture}
+  \end{center}
+
+  \vspace{4pt}
+
+  \begin{columns}[T]
+
+    \begin{column}{0.31\textwidth}
+      \begin{block}{ResNet50 — Fine-Tuning}
+        \begin{itemize}\small
+          \item Poids ImageNet
+          \item 20 dernières couches entraînables
+          \item L2 + Dropout~0.5
+          \item Sortie sigmoïde
+        \end{itemize}
+      \end{block}
+    \end{column}
+
+    \begin{column}{0.33\textwidth}
+      \begin{block}{Z-Score Dataset-Level}
+        \[
+          I' = \frac{I - \mu_{\text{train}}}{\sigma_{\text{train}}}
+        \]
+        \small Statistiques calculées une seule fois,
+        sauvegardées dans \code{dataset\_stats.json}
+      \end{block}
+    \end{column}
+
+    \begin{column}{0.32\textwidth}
+      \begin{block}{Focal Loss + Label Smoothing}
+        \[
+          \mathcal{L} = \mathbb{E}[w_f]\cdot\mathcal{L}_{\text{BCE}}^{\varepsilon}
+        \]
+        \small $\gamma=2$, $\alpha=0.25$, $\varepsilon=0.1$\\
+        Contre la surconfiance médicale
+      \end{block}
+    \end{column}
+
+  \end{columns}
+
+  \vspace{4pt}
+  \begin{center}
+  \begin{tikzpicture}
+    \node[fill=EMSIred!10, draw=EMSIred!60, rounded corners=3pt,
+          inner sep=5pt, font=\small]{%
+      \textbf{Anomalie corrigée~:} classes inversées à l'entraînement
+      (0\,=\,Tumeur, 1\,=\,Sain)
+      $\;\Rightarrow\;p_{\text{tumeur}} = 1 - p_{\text{brute}}$
+    };
+  \end{tikzpicture}
+  \end{center}
+
+\end{frame}
+
+% ============================================================
+%  SECTION 3 — DÉMONSTRATION INTERFACE
+% ============================================================
+\section{Démonstration Interface}
+
+% ── Slide 3 : Résultat Sain ────────────────────────────────
+\begin{frame}{Démonstration — Diagnostic~: Cerveau Sain}
+
+  \begin{columns}[T]
+
+    % Capture d'écran
+    \begin{column}{0.55\textwidth}
+      \begin{tikzpicture}
+        \node[draw=EMSIgreen!70, line width=1.2pt,
+              rounded corners=4pt, inner sep=3pt]{%
+          % --> Fichier : image_f95c43.jpg (même dossier que .tex)
+          \includegraphics[width=\linewidth, height=5.5cm,
+                           keepaspectratio]{image_f95c43}%
+        };
+      \end{tikzpicture}
+    \end{column}
+
+    % Analyse du résultat
+    \begin{column}{0.42\textwidth}
+      \begin{exampleblock}{\cmark\ Verdict : Cerveau Sain}
+        \begin{itemize}\small
+          \item Indicateur \textbf{Fiabilité~: Élevée}
+          \item Jauge verte animée à \textbf{100\,\%}
+          \item Probabilité tumorale \textbf{< seuil~$\tau^*$}
+        \end{itemize}
+      \end{exampleblock}
+
+      \vspace{6pt}
+
+      \begin{block}{Message affiché}
+        \small\itshape
+        «~Le modèle a analysé les structures cérébrales
+        et n'a détecté aucun signal dépassant le seuil
+        de rigueur médicale.~»
+      \end{block}
+
+      \vspace{6pt}
+
+      \begin{block}{Choix UX}
+        \small
+        \textbf{Pas de probabilité brute affichée} — une
+        valeur de 79\,\% tumor malgré un verdict sain
+        créerait une anxiété injustifiée chez le patient.
+      \end{block}
+
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+% ── Slide 4 : Résultat Tumeur ──────────────────────────────
+\begin{frame}{Démonstration — Diagnostic~: Tumeur Détectée}
+
+  \begin{columns}[T]
+
+    % Capture d'écran
+    \begin{column}{0.55\textwidth}
+      \begin{tikzpicture}
+        \node[draw=EMSIred!70, line width=1.2pt,
+              rounded corners=4pt, inner sep=3pt]{%
+          % --> Fichier : image_f96087.jpg (même dossier que .tex)
+          \includegraphics[width=\linewidth, height=5.5cm,
+                           keepaspectratio]{image_f96087}%
+        };
+      \end{tikzpicture}
+    \end{column}
+
+    % Analyse du résultat
+    \begin{column}{0.42\textwidth}
+      \begin{alertblock}{\xmark\ Verdict : Tumeur Détectée}
+        \begin{itemize}\small
+          \item Alerte rouge~(\code{\#ff6b7a}) déclenchée
+          \item Score de confiance affiché sur la jauge
+          \item $p_{\text{tumeur}} \geq \tau^*_{\text{Youden}}$
+        \end{itemize}
+      \end{alertblock}
+
+      \vspace{6pt}
+
+      \begin{block}{Inversion des classes — Corrigée}
+        \small
+        Sans correction~: $p_{\text{brute}} \approx 0.05$\\
+        Après~$1 - p_{\text{brute}}$~: $p_{\text{tumeur}} \approx 0.95$\\
+        \textbf{Verdict correct~: Tumeur détectée}
+      \end{block}
+
+      \vspace{6pt}
+
+      \begin{block}{Avertissement médical}
+        \small\itshape
+        Résultat fourni à titre académique.
+        Consultation d'un radiologue indispensable.
+      \end{block}
+
+    \end{column}
+  \end{columns}
+
+\end{frame}
+
+% ============================================================
+%  SECTION 4 — ÉVALUATION ET PERFORMANCES
+% ============================================================
+\section{Évaluation et Performances}
+
+\begin{frame}{Évaluation du Modèle}
+
+  \begin{columns}[T]
+
+    % ── Colonne gauche : courbes d'entraînement ────────────
+    \begin{column}{0.50\textwidth}
+      \begin{block}{Courbes d'Entraînement}
+        \vspace{4pt}
+        \begin{center}
+          % --> Fichier généré par evaluation_kaggle.py : training_history.png
+          \includegraphics[width=0.92\linewidth,
+                           height=3.6cm,
+                           keepaspectratio]{training_history}
+        \end{center}
+        \vspace{2pt}
+        {\scriptsize
+          \textbf{Bleu}~: Train \quad \textbf{Rouge}~: Validation\\
+          EarlyStopping (patience=5) sur \code{val\_loss}\\
+          ReduceLROnPlateau (factor=0.5, patience=3)
+        }
+      \end{block}
+    \end{column}
+
+    % ── Colonne droite : matrice de confusion ──────────────
+    \begin{column}{0.47\textwidth}
+      \begin{block}{Matrice de Confusion — Set de Test}
+        \vspace{6pt}
+        \begin{center}
+        \renewcommand{\arraystretch}{1.5}
+        \begin{tabular}{cc|cc}
+          & & \multicolumn{2}{c}{\textbf{Prédit}} \\
+          & & \textbf{Sain} & \textbf{Tumeur} \\
+          \hline
+          \multirow{2}{*}{\rotatebox{90}{\textbf{Réel}}}
+            & \textbf{Sain}
+              & \cellcolor{EMSIgreen!30}\textbf{VN}
+              & \cellcolor{EMSIorange!30}FP \\
+            & \textbf{Tumeur}
+              & \cellcolor{EMSIred!25}FN
+              & \cellcolor{EMSIgreen!30}\textbf{VP} \\
+        \end{tabular}
+        \end{center}
+        \vspace{4pt}
+        % --> Remplacez les X par vos valeurs réelles
+        \begin{center}
+        \begin{tabular}{ll}
+          \textcolor{EMSIgreen}{\textbf{VP}} = \textit{X}
+            & \textcolor{EMSIorange}{FP} = \textit{X} \\
+          \textcolor{EMSIred}{FN} = \textit{X}
+            & \textcolor{EMSIgreen}{\textbf{VN}} = \textit{X} \\
+        \end{tabular}
+        \end{center}
+        \vspace{4pt}
+        {\scriptsize
+          \textbf{Sensibilité}~(Recall)~$= \frac{VP}{VP+FN}$\\[2pt]
+          \textbf{Spécificité}~$= \frac{VN}{VN+FP}$\\[2pt]
+          \textbf{Seuil~$\tau^*$}~: indice de Youden,
+          clamped~$[0.25, 0.75]$
+        }
+      \end{block}
+    \end{column}
+
+  \end{columns}
+
+  \vspace{4pt}
+  \begin{center}
+  \begin{tikzpicture}
+    \node[fill=EMSIlight, draw=EMSIblue2, rounded corners=3pt,
+          inner sep=5pt, font=\small]{%
+      \textbf{Poids classes~:} $w_{\text{sain}}=1.0$,
+      $w_{\text{tumeur}}=2.0$ \quad—\quad
+      \textbf{Loss~:} Focal ($\gamma$=2, $\alpha$=0.25) + Label Smoothing ($\varepsilon$=0.1)
+    };
+  \end{tikzpicture}
+  \end{center}
+
+\end{frame}
+
+% ============================================================
+%  SECTION 5 — CONCLUSION ET PERSPECTIVES
+% ============================================================
+\section{Conclusion et Perspectives}
+
+\begin{frame}{Bilan et Perspectives}
+
+  \begin{columns}[T]
+
+    % ── Colonne gauche : bilan ─────────────────────────────
+    \begin{column}{0.46\textwidth}
+      \begin{exampleblock}{Apports du Projet}
+        \begin{itemize}\small
+          \item[\cmark] Pipeline Z-Score \textbf{dataset-level}
+                        (cohérence train/inférence)
+          \item[\cmark] Focal Loss + Label Smoothing
+                        contre la \textbf{surconfiance}
+          \item[\cmark] Seuil Youden \textbf{automatique}
+                        sauvegardé dans \code{.json}
+          \item[\cmark] Correction \textbf{inversion classes}
+                        par $1 - p_{\text{brute}}$
+          \item[\cmark] Interface UX médicale~:
+                        \textbf{fiabilité} plutôt que\\
+                        probabilité brute
+        \end{itemize}
+      \end{exampleblock}
+    \end{column}
+
+    % ── Colonne droite : perspectives ─────────────────────
+    \begin{column}{0.50\textwidth}
+      \begin{block}{Perspectives d'Évolution}
+        \begin{itemize}\small
+
+          \item \textbf{Segmentation U-Net}\\
+                {\scriptsize Produire un masque de localisation
+                précis de la lésion, en plus du verdict binaire}
+
+          \vspace{3pt}
+          \item \textbf{Cartes de chaleur Grad-CAM}\\
+                {\scriptsize Visualiser les zones d'attention du
+                modèle sur la coupe IRM → explicabilité clinique}
+
+          \vspace{3pt}
+          \item \textbf{Multi-modalité IRM}\\
+                {\scriptsize Exploiter T1, T1ce, T2, FLAIR
+                simultanément (fusion de features)}
+
+          \vspace{3pt}
+          \item \textbf{Calibration isotonique}\\
+                {\scriptsize Temperature Scaling pour que
+                $p=0.7$ signifie réellement 70\,\% de tumeurs}
+
+          \vspace{3pt}
+          \item \textbf{Validation clinique}\\
+                {\scriptsize Cohorte externe + audit de biais
+                démographique + marquage CE classe IIb}
+
+        \end{itemize}
+      \end{block}
+    \end{column}
+
+  \end{columns}
+
+\end{frame}
+
+% ── DIAPOSITIVE DE REMERCIEMENT ────────────────────────────
+\begin{frame}[plain]
+  \begin{tikzpicture}[remember picture, overlay]
+    % Fond dégradé
+    \fill[EMSIblue] (current page.north west)
+      rectangle (current page.south east);
+    \fill[EMSIblue2, opacity=0.25]
+      (current page.center) circle (5cm);
+    % Logo
+    \node[anchor=north west, inner sep=10pt]
+      at (current page.north west)
+      {\includegraphics[height=1.0cm]{logo_emsi}};
+  \end{tikzpicture}
+
+  \vspace{1.5cm}
+  \begin{center}
+    {\Huge\bfseries\color{white} Merci pour votre attention}\\[0.8cm]
+    {\large\color{white!85!EMSIblue2}
+      \textbf{MOUMEN Doae Malak} \quad \& \quad \textbf{SOUALHINE Douaa}\\[0.3cm]
+      Encadrant~: Pr.~BENLAKHDAR Said\\[0.5cm]}
+    {\normalsize\color{white!70!EMSIblue2}
+      Nous sommes à votre disposition pour les questions.}
+  \end{center}
+\end{frame}
+
+% ============================================================
+\end{document}

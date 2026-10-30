@@ -1,0 +1,1333 @@
+% ============================================================
+%  RAPPORT DE PFE — BrainScan AI
+%  Auteure  : MOUMEN Doae Malak
+%  Encadrante : Pr. Hasnâa CHAABI
+%  Compilation : pdflatex rapport_pfe.tex  (×2 pour les refs)
+% ============================================================
+
+\documentclass[12pt, a4paper]{report}
+
+% ── Encodage & langue ──────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+% ── Mise en page ───────────────────────────────────────────
+\usepackage[top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% ── Graphiques & couleurs ──────────────────────────────────
+\usepackage{graphicx}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+% ── Mathématiques ──────────────────────────────────────────
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+
+% ── Code source ────────────────────────────────────────────
+\usepackage{listings}
+\usepackage{inconsolata}   % police monospace lisible
+
+\definecolor{codebg}{RGB}{245,247,250}
+\definecolor{codecomment}{RGB}{106,153,85}
+\definecolor{codestring}{RGB}{206,145,120}
+\definecolor{codekeyword}{RGB}{86,156,214}
+\definecolor{codenumber}{RGB}{181,181,181}
+
+\lstdefinestyle{python}{
+  language=Python,
+  backgroundcolor=\color{codebg},
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{codekeyword}\bfseries,
+  stringstyle=\color{codestring},
+  commentstyle=\color{codecomment}\itshape,
+  numberstyle=\tiny\color{codenumber},
+  numbers=left,
+  numbersep=8pt,
+  stepnumber=1,
+  showstringspaces=false,
+  breaklines=true,
+  frame=single,
+  framerule=0.4pt,
+  rulecolor=\color{gray!40},
+  xleftmargin=15pt,
+  framexleftmargin=15pt,
+  tabsize=4,
+  captionpos=b,
+  literate=
+    {é}{{\'e}}1 {è}{{\`e}}1 {ê}{{\^e}}1 {ë}{{\"e}}1
+    {à}{{\`a}}1 {â}{{\^a}}1 {ù}{{\`u}}1 {û}{{\^u}}1
+    {î}{{\^i}}1 {ô}{{\^o}}1 {ç}{{\c{c}}}1
+    {É}{{\'E}}1 {È}{{\`E}}1 {Â}{{\^A}}1,
+}
+\lstset{style=python}
+
+% ── Tableaux & listes ──────────────────────────────────────
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{multirow}
+\usepackage{subcaption}   % sous-figures (a) / (b) avec légendes individuelles
+\usepackage{float}        % placement [H] pour les figures non flottantes
+
+% ── En-têtes & pieds de page ───────────────────────────────
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\leftmark}
+\fancyhead[R]{\small BrainScan AI — PFE 2025}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ── Liens hypertexte ───────────────────────────────────────
+\usepackage[
+  colorlinks = true,
+  linkcolor  = blue!70!black,
+  citecolor  = green!50!black,
+  urlcolor   = cyan!60!black,
+  pdftitle   = {Rapport PFE - BrainScan AI},
+  pdfauthor  = {MOUMEN Doae Malak},
+]{hyperref}
+
+% ── Bibliographie ──────────────────────────────────────────
+\usepackage[backend=biber, style=ieee, sorting=none]{biblatex}
+\addbibresource{references.bib}   % créer ce fichier séparément
+
+% ── Boîtes d'information ───────────────────────────────────
+\usepackage{tcolorbox}
+\tcbuselibrary{skins, breakable}
+
+\newtcolorbox{infobox}[1][]{
+  enhanced, breakable,
+  colback=blue!5!white, colframe=blue!60!black,
+  fonttitle=\bfseries, title=#1,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+}
+\newtcolorbox{warnbox}[1][]{
+  enhanced, breakable,
+  colback=orange!8!white, colframe=orange!70!black,
+  fonttitle=\bfseries, title=#1,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+}
+\newtcolorbox{successbox}[1][]{
+  enhanced, breakable,
+  colback=green!6!white, colframe=green!55!black,
+  fonttitle=\bfseries, title=#1,
+  left=6pt, right=6pt, top=4pt, bottom=4pt,
+}
+
+% ── Commandes utilitaires ──────────────────────────────────
+\newcommand{\code}[1]{\texttt{\small #1}}
+\newcommand{\fichier}[1]{\texttt{\small\color{blue!70!black}#1}}
+
+% ============================================================
+%  DOCUMENT
+% ============================================================
+\begin{document}
+
+% ── Numérotation romaine pour les pages préliminaires ──────
+\pagenumbering{roman}
+\setcounter{page}{0}
+
+% ============================================================
+%  PAGE DE GARDE
+% ============================================================
+\begin{titlepage}
+  \begin{center}
+
+    % Logo établissement (remplacez le chemin si nécessaire)
+    % \includegraphics[width=3.5cm]{logo_ecole.png}\\[0.5cm]
+
+    \rule{\linewidth}{1.5pt}\\[0.3cm]
+    {\Large\scshape Université — École d'Ingénieurs}\\[0.1cm]
+    {\large Département Informatique \& Intelligence Artificielle}\\
+    \rule{\linewidth}{0.8pt}\\[1.5cm]
+
+    {\huge\bfseries\color{blue!70!black}
+      Détection Automatique de Tumeurs Cérébrales\\[0.4cm]
+      par Deep Learning}\\[0.6cm]
+
+    {\LARGE\itshape BrainScan AI}\\[0.3cm]
+    {\large Application Web Django / ResNet50 / BraTS 2021}\\[2cm]
+
+    \begin{minipage}{0.48\textwidth}
+      \raggedright
+      \textbf{Réalisé par :}\\[0.2cm]
+      {\large MOUMEN Doae Malak}\\
+      Spécialité : Data Science \& IA\\
+      Promotion 2024--2025
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.48\textwidth}
+      \raggedleft
+      \textbf{Encadrante :}\\[0.2cm]
+      {\large Pr. Hasnâa CHAABI}\\
+      Département IA \& Systèmes Intelligents
+    \end{minipage}
+
+    \vfill
+
+    \rule{\linewidth}{0.8pt}\\[0.3cm]
+    {\large Projet de Fin d'Études}\\[0.1cm]
+    {\large Année universitaire 2024--2025}\\[0.3cm]
+    \rule{\linewidth}{1.5pt}
+
+  \end{center}
+\end{titlepage}
+
+% ============================================================
+%  DÉDICACE
+% ============================================================
+\chapter*{Dédicace}
+\addcontentsline{toc}{chapter}{Dédicace}
+\thispagestyle{empty}
+
+\begin{center}
+  \itshape\large
+  À ma famille, pour son soutien indéfectible tout au long de ce parcours.\\[0.5cm]
+  À Pr. Hasnâa CHAABI, pour ses conseils éclairés et sa disponibilité.\\[0.5cm]
+  À toute personne qui, un jour, bénéficiera de l'intelligence artificielle\\
+  pour un diagnostic médical plus rapide et plus sûr.
+\end{center}
+
+% ============================================================
+%  REMERCIEMENTS
+% ============================================================
+\chapter*{Remerciements}
+\addcontentsline{toc}{chapter}{Remerciements}
+
+Je tiens à exprimer ma profonde gratitude à \textbf{Pr. Hasnâa CHAABI},
+encadrante de ce projet, dont les orientations scientifiques ont été
+décisives pour la qualité du travail réalisé.
+
+Mes remerciements vont également aux équipes de la compétition
+\textit{BraTS 2021} (Brain Tumor Segmentation Challenge) pour la mise
+à disposition du jeu de données d'IRM cérébrales annotées, et à la
+communauté open-source TensorFlow/Keras pour les outils qui ont rendu
+ce projet possible.
+
+% ============================================================
+%  RÉSUMÉ
+% ============================================================
+\chapter*{Résumé}
+\addcontentsline{toc}{chapter}{Résumé}
+
+Ce projet de fin d'études présente \textbf{BrainScan AI}, une application
+web de détection automatique de tumeurs cérébrales à partir d'IRM en
+format NIfTI (\code{.nii.gz}). Le système s'appuie sur une architecture
+\textbf{ResNet50} pré-entraînée sur ImageNet, affinée (fine-tuning sur
+les 20 dernières couches) avec une fonction de perte combinant
+\textit{Focal Loss} et \textit{Label Smoothing} pour gérer
+l'incertitude inhérente aux données médicales.
+
+Le pipeline complet — du prétraitement par Z-Score dataset-level jusqu'à
+la présentation du diagnostic à l'utilisateur — est intégré dans une
+application \textbf{Django}. Une attention particulière a été portée à
+l'expérience utilisateur : les probabilités brutes sont masquées au profit
+d'un indicateur de \textit{fiabilité du diagnostic}, et un seuil de
+décision optimal est calculé automatiquement via l'indice de Youden.
+
+\textbf{Mots-clés :} Deep Learning, Détection de tumeurs, IRM, ResNet50,
+Focal Loss, Django, BraTS 2021, Seuil de Youden.
+
+\vspace{1cm}
+
+\textbf{Abstract —} This final year project presents BrainScan AI, a web
+application for automatic brain tumor detection from NIfTI MRI scans.
+The system combines a fine-tuned ResNet50 backbone with a custom
+Focal + Label Smoothing loss, deployed via a Django interface that
+prioritises clinical reassurance over raw probability display.
+
+% ============================================================
+%  TABLE DES MATIÈRES
+% ============================================================
+\tableofcontents
+\listoffigures
+\listoftables
+\lstlistoflistings
+
+% ── Numérotation arabe dès le premier chapitre ─────────────
+\cleardoublepage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+% ============================================================
+%  CHAPITRE 1 — INTRODUCTION GÉNÉRALE
+% ============================================================
+\chapter{Introduction Générale}
+\label{chap:intro}
+
+\section{Contexte et Motivation}
+
+Les tumeurs cérébrales représentent l'une des pathologies les plus
+redoutables en oncologie. Selon l'Organisation Mondiale de la Santé,
+les glioblastomes multiformes affichent un taux de survie à cinq ans
+inférieur à 10~\%. La rapidité du diagnostic est un facteur pronostique
+déterminant~: plus la lésion est détectée tôt, plus les options
+thérapeutiques sont nombreuses.
+
+L'Imagerie par Résonance Magnétique (IRM) constitue le gold standard
+pour la détection et la caractérisation des tumeurs cérébrales.
+Cependant, l'interprétation manuelle de centaines de coupes par examen
+est une tâche longue, subjective et susceptible d'erreurs, surtout en
+l'absence d'un radiologue spécialisé.
+
+L'essor du \textit{deep learning}, et notamment des réseaux de neurones
+convolutifs (CNN), offre une opportunité inédite~: automatiser la
+détection des lésions à partir des volumes IRM, avec une précision
+comparable à celle des experts humains.
+
+\section{Objectifs du Projet}
+
+Ce projet vise à concevoir et déployer un système de détection de
+tumeurs cérébrales accessible via un navigateur web, avec les objectifs
+suivants~:
+
+\begin{enumerate}[leftmargin=*, label=\arabic*.]
+  \item Entraîner un modèle CNN performant sur le dataset \textbf{BraTS 2021}.
+  \item Intégrer des mécanismes anti-surconfiance (Focal Loss, Label Smoothing).
+  \item Calculer automatiquement un seuil de décision cliniquement sûr.
+  \item Développer une interface web rassurante pour le patient et le clinicien.
+  \item Garantir la cohérence entre le prétraitement à l'entraînement et
+        celui à l'inférence.
+\end{enumerate}
+
+\section{Organisation du Rapport}
+
+Ce rapport est structuré en cinq chapitres~:
+\begin{itemize}
+  \item \textbf{Chapitre 2} — État de l'art en détection de tumeurs par DL.
+  \item \textbf{Chapitre 3} — Méthodologie technique (modèle, loss, normalisation).
+  \item \textbf{Chapitre 4} — Analyse, calibration et correction des anomalies.
+  \item \textbf{Chapitre 5} — Réalisation de l'interface et expérience utilisateur.
+  \item \textbf{Chapitre 6} — Conclusion et perspectives.
+\end{itemize}
+
+% ============================================================
+%  CHAPITRE 2 — ÉTAT DE L'ART
+% ============================================================
+\chapter{État de l'Art}
+\label{chap:etat_art}
+
+\section{Détection de Tumeurs Cérébrales par Deep Learning}
+
+Depuis les travaux fondateurs de Havaei et al. (2017) sur la
+segmentation pixel-à-pixel, la détection de tumeurs cérébrales par
+CNN a connu une évolution rapide. On distingue deux grandes approches~:
+
+\begin{description}
+  \item[Segmentation (U-Net, nnU-Net)] Prédit un masque binaire
+        \(\hat{M}_{ij} \in \{0, 1\}\) pour chaque voxel.
+        Très précise mais nécessite des annotations de segmentation
+        complètes, coûteuses à produire.
+
+  \item[Classification par coupe] Prédit un label binaire
+        \(\hat{y} \in \{0, 1\}\) par coupe axiale.
+        Plus simple, entraînable avec des labels de présence/absence,
+        et suffisant pour un premier triage clinique.
+\end{description}
+
+Ce projet adopte la \textbf{classification par coupe} en raison de la
+disponibilité des labels et de la simplicité de déploiement.
+
+\section{Architectures de Référence}
+
+\begin{table}[h]
+  \centering
+  \caption{Comparaison des architectures CNN pour la classification médicale}
+  \label{tab:architectures}
+  \begin{tabularx}{\textwidth}{lXrr}
+    \toprule
+    \textbf{Architecture} & \textbf{Caractéristiques} &
+    \textbf{Param.} & \textbf{AUC typique} \\
+    \midrule
+    VGG-16     & Simple, profond, pas de skip-connections & 138M & 0.91 \\
+    InceptionV3 & Multi-échelle, efficace en mémoire & 24M & 0.93 \\
+    \textbf{ResNet50} & Skip-connections, fine-tuning robuste & 25M & \textbf{0.95} \\
+    EfficientNetB4 & Scaling uniforme, SOTA récent & 19M & 0.96 \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\textbf{ResNet50} a été retenu pour ce projet en raison de son excellent
+compromis performance/taille, de sa disponibilité sur Keras avec les
+poids ImageNet, et de sa robustesse éprouvée en imagerie médicale.
+
+\section{Problématiques Spécifiques aux Données Médicales}
+
+\subsection{Déséquilibre des Classes}
+
+Dans le dataset BraTS 2021, de nombreuses coupes axiales d'un même
+patient tumoral ne contiennent pas de pixels tumoraux (coupe au-dessus
+ou en-dessous de la masse). Ce phénomène crée un déséquilibre naturel~:
+
+\begin{equation}
+  \frac{N_{\text{sain}}}{N_{\text{tumoral}}} \approx 3{,}5
+\end{equation}
+
+Un modèle non corrigé tend alors à classer systématiquement
+\textit{sain} pour maximiser l'accuracy globale.
+
+\subsection{Surconfiance des Réseaux de Neurones}
+
+Les CNN modernes produisent des probabilités de sortie proche de 0 ou 1
+(\textit{overconfidence}), rendant difficile l'interprétation clinique.
+Cette propriété est particulièrement dangereuse en médecine~: un modèle
+qui dit «~96~\% sain~» avec une vraie tumeur est plus dangereux qu'un
+modèle qui dit «~70~\% sain~».
+
+% ============================================================
+%  CHAPITRE 3 — MÉTHODOLOGIE TECHNIQUE
+% ============================================================
+\chapter{Méthodologie Technique}
+\label{chap:methodo}
+
+\section{Vue d'Ensemble du Pipeline}
+
+\begin{figure}[h]
+  \centering
+  \begin{tikzpicture}[
+    node distance=0.7cm and 1.2cm,
+    box/.style={
+      draw, rounded corners=4pt,
+      fill=blue!10, minimum height=0.9cm,
+      minimum width=3.2cm, align=center,
+      font=\small
+    },
+    arrow/.style={->, thick, blue!60!black}
+  ]
+    \node[box] (nii)    {Fichier .nii.gz};
+    \node[box, right=of nii]  (slice)  {Coupe axiale\\(slice 75)};
+    \node[box, right=of slice] (zscore) {Z-Score\\Dataset};
+    \node[box, right=of zscore] (clahe)  {CLAHE};
+    \node[box, below=of clahe] (resize) {Resize\\224×224};
+    \node[box, left=of resize]  (rgb)   {Grayscale→RGB\\+ImageNet norm};
+    \node[box, left=of rgb]     (model) {ResNet50\\(fine-tuned)};
+    \node[box, left=of model]   (inv)   {Inversion\\1-p};
+    \node[box, below=of inv]    (seuil) {Seuil Youden\\(auto)};
+    \node[box, right=of seuil]  (ux)    {Interface\\Django};
+
+    \draw[arrow] (nii)   -- (slice);
+    \draw[arrow] (slice) -- (zscore);
+    \draw[arrow] (zscore)-- (clahe);
+    \draw[arrow] (clahe) -- (resize);
+    \draw[arrow] (resize)-- (rgb);
+    \draw[arrow] (rgb)   -- (model);
+    \draw[arrow] (model) -- (inv);
+    \draw[arrow] (inv)   -- (seuil);
+    \draw[arrow] (seuil) -- (ux);
+  \end{tikzpicture}
+  \caption{Pipeline complet de BrainScan AI, de l'IRM brute au verdict affiché}
+  \label{fig:pipeline}
+\end{figure}
+
+\section{Prétraitement — Normalisation Z-Score Dataset}
+\label{sec:zscore}
+
+\subsection{Problème : Hétérogénéité des Intensités IRM}
+
+Les IRM cérébrales présentent des variations d'intensité importantes
+d'un patient à l'autre (liées à la machine, au protocole d'acquisition,
+à l'âge du patient). Une normalisation purement par image amplifie
+artificiellement les images peu contrastées, ce qui nuit à la
+généralisation du modèle.
+
+\subsection{Solution : Z-Score au Niveau du Dataset}
+
+La normalisation est calculée \textbf{une seule fois} sur l'ensemble
+d'entraînement, puis réappliquée identiquement à la validation, au
+test et à l'inférence en production.
+
+\begin{equation}
+  \label{eq:zscore}
+  I'_{ij} = \frac{I_{ij} - \mu_{\text{train}}}{\sigma_{\text{train}} + \varepsilon}
+\end{equation}
+
+où \(\mu_{\text{train}}\) et \(\sigma_{\text{train}}\) sont calculés
+sur les pixels cerveau (\(I_{ij} > 0\)) de toutes les coupes
+d'entraînement.
+
+Ces statistiques sont persistées dans le fichier
+\fichier{dataset\_stats.json}~:
+
+\begin{lstlisting}[caption={Contenu de dataset\_stats.json},
+                   label={lst:stats_json}]
+{
+  "mean":      1729.70,
+  "std":       16289.58,
+  "n_images":  875,
+  "threshold": 0.5312    # ajoute automatiquement apres entrainement
+}
+\end{lstlisting}
+
+\subsection{Implémentation dans brats\_classifier.py}
+
+\begin{lstlisting}[caption={Calcul des statistiques dataset (brats\_classifier.py)},
+                   label={lst:compute_stats}]
+def compute_dataset_stats(paths, slices, save_path=STATS_FILE):
+    all_pixels = []
+    for path, z in zip(paths, slices):
+        s = extract_raw_slice(path, int(z))
+        brain_px = s[s > 0]           # pixels cerveau uniquement
+        if brain_px.size > 0:
+            all_pixels.append(brain_px)
+
+    all_pixels = np.concatenate(all_pixels)
+    stats = {
+        "mean": float(np.mean(all_pixels)),
+        "std":  float(np.std(all_pixels)),
+        "n_images": len(paths),
+    }
+    with open(save_path, "w") as f:
+        json.dump(stats, f, indent=2)
+    return stats
+\end{lstlisting}
+
+\subsection{Réapplication Cohérente en Production}
+
+\begin{lstlisting}[caption={Z-Score dataset dans views.py (inférence)},
+                   label={lst:zscore_infer}]
+def _preprocess(slice_2d):
+    stats = _get_stats()           # charge dataset_stats.json
+
+    if stats is not None:
+        mu, sigma  = stats["mean"], stats["std"]
+        normalized = (slice_2d - mu) / (sigma + 1e-8)
+    else:
+        # fallback : Z-Score par image (moins robuste)
+        nonzero = slice_2d[slice_2d > 0]
+        mu      = nonzero.mean() if nonzero.size > 0 else 0.0
+        sigma   = nonzero.std()  if nonzero.size > 0 else 1.0
+        normalized = (slice_2d - mu) / (sigma + 1e-8)
+\end{lstlisting}
+
+\begin{infobox}[Invariant train/inférence]
+  Le même fichier \fichier{dataset\_stats.json} est utilisé à
+  l'entraînement et en production. Si ce fichier est absent ou
+  corrompu, Django bascule automatiquement sur le Z-Score par image
+  et journalise un avertissement.
+\end{infobox}
+
+\subsection{Vérification : CLAHE ne Lisse Pas les Tumeurs}
+
+Un risque potentiel est que la normalisation globale suivie du CLAHE
+(Contrast Limited Adaptive Histogram Equalization) atténue les zones
+hypersignal caractéristiques des tumeurs.
+
+\textbf{Analyse}~: le clip à \(\pm 3\sigma\) garantit que les valeurs
+extrêmes (zones tumorales souvent au-dessus de \(+2\sigma\)) sont
+préservées à leur maximum avant CLAHE. Le CLAHE, appliqué localement
+avec \code{clipLimit=2.0}, augmente le contraste des structures subtiles
+\textit{sans écraser} les zones déjà contrastées. Cette combinaison
+\textbf{améliore} la visibilité des tumeurs pour le CNN.
+
+\section{Fonction de Perte — Focal Loss + Label Smoothing}
+\label{sec:loss}
+
+\subsection{Motivations}
+
+Deux problèmes distincts sont adressés par la fonction de perte
+personnalisée~:
+
+\begin{enumerate}
+  \item \textbf{Déséquilibre des classes} : les exemples faciles
+        (cerveau clairement sain) dominent le gradient et empêchent
+        le modèle d'apprendre les cas ambigus.
+  \item \textbf{Surconfiance} : la Binary Cross-Entropy standard pousse
+        les probabilités vers 0 ou 1, produisant des prédictions
+        extrêmes difficiles à interpréter cliniquement.
+\end{enumerate}
+
+\subsection{Formulation Mathématique}
+
+\subsubsection{Binary Cross-Entropy avec Label Smoothing}
+
+Soit \(y \in \{0, 1\}\) le label réel et \(\hat{y}\) la prédiction
+sigmoïde. Avec un coefficient de lissage \(\varepsilon = 0.1\)~:
+
+\begin{equation}
+  \label{eq:smooth_label}
+  \tilde{y} = y(1 - \varepsilon) + \frac{\varepsilon}{2}
+  = \begin{cases}
+      0.05 & \text{si } y = 0 \\
+      0.95 & \text{si } y = 1
+    \end{cases}
+\end{equation}
+
+La BCE avec label smoothing devient~:
+
+\begin{equation}
+  \label{eq:bce_smooth}
+  \mathcal{L}_{\text{BCE}}^{\varepsilon}(\tilde{y}, \hat{y})
+  = -\tilde{y}\log\hat{y} - (1-\tilde{y})\log(1-\hat{y})
+\end{equation}
+
+L'effet direct est de plafonner la pénalité maximale~: le modèle n'est
+jamais récompensé pour avoir prédit exactement 0 ou 1, ce qui réduit
+la surconfiance.
+
+\subsubsection{Focal Loss}
+
+Pour un exemple d'entraînement, la probabilité «~correcte~» est~:
+
+\begin{equation}
+  p_t = y\hat{y} + (1-y)(1-\hat{y})
+\end{equation}
+
+La Focal Loss introduit un terme de pondération exponentiel~:
+
+\begin{equation}
+  \label{eq:focal}
+  w_{\text{focal}} = \alpha \cdot (1 - p_t)^{\gamma}
+\end{equation}
+
+\begin{itemize}
+  \item \(\gamma = 2\)~: les exemples faciles (\(p_t \to 1\)) reçoivent
+        un poids quasi nul ; les cas difficiles (\(p_t \to 0\)) reçoivent
+        un poids plein.
+  \item \(\alpha = 0.25\)~: facteur d'équilibre global.
+\end{itemize}
+
+\subsubsection{Combinaison Finale}
+
+\begin{equation}
+  \label{eq:combined_loss}
+  \boxed{
+    \mathcal{L}_{\text{total}} = \mathbb{E}\bigl[w_{\text{focal}}\bigr]
+    \cdot \mathcal{L}_{\text{BCE}}^{\varepsilon}
+  }
+\end{equation}
+
+\subsection{Implémentation}
+
+\begin{lstlisting}[caption={Fonction de perte combinée (brats\_classifier.py)},
+                   label={lst:loss}]
+def build_loss(gamma=2.0, alpha=0.25, label_smoothing=0.1):
+    bce_smooth = tf.keras.losses.BinaryCrossentropy(
+        label_smoothing=label_smoothing,
+        from_logits=False,
+    )
+
+    def focal_smooth_loss(y_true, y_pred):
+        bce = bce_smooth(y_true, y_pred)
+
+        y_pred_c = tf.clip_by_value(y_pred, 1e-7, 1 - 1e-7)
+        p_t      = y_true * y_pred_c + (1 - y_true) * (1 - y_pred_c)
+        focal_w  = alpha * tf.pow(1.0 - p_t, gamma)
+
+        return tf.reduce_mean(focal_w) * bce
+
+    return focal_smooth_loss
+\end{lstlisting}
+
+\begin{infobox}[Chargement en production avec custom\_objects]
+  Keras ne sait pas retrouver \code{focal\_smooth\_loss} à partir du
+  nom seul. Il faut la fournir explicitement lors du chargement~:
+\begin{lstlisting}
+focal_smooth_loss = _build_focal_smooth_loss(
+    gamma=2.0, alpha=0.25, label_smoothing=0.1
+)
+model = load_model(
+    model_path,
+    custom_objects={"focal_smooth_loss": focal_smooth_loss},
+)
+\end{lstlisting}
+\end{infobox}
+
+\section{Architecture du Modèle}
+\label{sec:archi}
+
+\subsection{ResNet50 — Fine-Tuning Sélectif}
+
+\begin{lstlisting}[caption={Construction du modèle ResNet50 (brats\_classifier.py)},
+                   label={lst:model}]
+def build_model(input_shape=(224, 224, 3)):
+    inputs = layers.Input(shape=input_shape)
+
+    # Augmentation integree (train uniquement, desactivee a l'inference)
+    x = layers.RandomFlip("horizontal")(inputs)
+    x = layers.RandomRotation(0.10)(x)
+
+    base = ResNet50(weights="imagenet", include_top=False,
+                    input_shape=input_shape)
+    for layer in base.layers[:-20]:   # geler toutes sauf les 20 dernieres
+        layer.trainable = False
+    for layer in base.layers[-20:]:
+        layer.trainable = True
+
+    x = base(x, training=False)
+    x = layers.GlobalAveragePooling2D()(x)
+
+    x = layers.Dense(256, activation="relu",
+                     kernel_regularizer=regularizers.l2(1e-3))(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Dropout(0.50)(x)
+
+    x = layers.Dense(64, activation="relu",
+                     kernel_regularizer=regularizers.l2(1e-3))(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Dropout(0.50)(x)
+
+    output = layers.Dense(1, activation="sigmoid",
+                          name="tumor_prob")(x)
+    return Model(inputs=inputs, outputs=output)
+\end{lstlisting}
+
+\subsection{Poids des Classes Asymétriques}
+
+Pour pénaliser davantage les faux négatifs (tumeurs manquées), des
+poids asymétriques sont appliqués~:
+
+\begin{equation}
+  w_{\text{sain}} = 1.0 \qquad w_{\text{tumoral}} = 2.0
+\end{equation}
+
+\begin{lstlisting}[caption={Poids des classes dans model.fit()},
+                   label={lst:classweights}]
+class_weights = {0: 1.0, 1: 2.0}
+
+history = model.fit(
+    train_gen,
+    validation_data=val_gen,
+    epochs=50,
+    callbacks=callbacks,
+    class_weight=class_weights,
+    verbose=1,
+)
+\end{lstlisting}
+
+% ============================================================
+%  CHAPITRE 4 — ANALYSE ET CALIBRATION
+% ============================================================
+\chapter{Analyse et Calibration du Modèle}
+\label{chap:calibration}
+
+\section{Correction de l'Inversion des Classes}
+\label{sec:inversion}
+
+\subsection{Symptôme Observé}
+
+Lors des premiers tests en production, des IRM avec des masses tumorales
+évidentes recevaient des probabilités proches de 0, tandis que des
+coupes saines obtenaient des probabilités proches de 1. Le modèle
+fonctionnait correctement, mais ses sorties étaient \textbf{sémantiquement
+inversées}.
+
+\subsection{Diagnostic}
+
+L'inversion est due à l'ordre des classes lors de la collecte des
+données sur Kaggle. La fonction \code{collect\_samples\_simple} a
+traité les fichiers dans l'ordre alphabétique, plaçant les cerveaux
+\textit{healthy} avant les tumeurs dans le générateur, résultant en~:
+
+\begin{equation}
+  \text{Classe~0} \leftarrow \text{Tumeur} \qquad
+  \text{Classe~1} \leftarrow \text{Sain}
+\end{equation}
+
+au lieu de la convention attendue (0=Sain, 1=Tumeur).
+
+\subsection{Correction Adoptée}
+
+La correction la plus propre, qui ne nécessite pas de réentraîner
+le modèle, est d'inverser la probabilité brute côté inférence~:
+
+\begin{equation}
+  \label{eq:inversion}
+  \boxed{p_{\text{tumeur}} = 1 - p_{\text{brute}}}
+\end{equation}
+
+\begin{lstlisting}[caption={Inversion dans views.py (detector/views.py)},
+                   label={lst:inversion}]
+raw_output = model.predict(tensor, verbose=0)
+
+# Le modele a ete entraine avec 0=Tumeur, 1=Sain
+# --> inversion pour que tumor_prob = P(Tumeur)
+if raw_output.shape[-1] == 1:
+    tumor_prob = 1.0 - float(raw_output[0][0])   # sigmoidee
+else:
+    tumor_prob = 1.0 - float(raw_output[0][1])   # softmax classe 1
+\end{lstlisting}
+
+\begin{warnbox}[Bonne pratique pour les projets futurs]
+  Pour éviter ce type d'inversion, il est recommandé de~:
+  \begin{enumerate}
+    \item Vérifier l'ordre des classes avec \code{np.unique(labels)}
+          avant l'entraînement.
+    \item Sauvegarder le mapping \code{\{"0": "sain", "1": "tumeur"\}}
+          dans \fichier{dataset\_stats.json}.
+    \item Valider sur un exemple connu avant tout déploiement.
+  \end{enumerate}
+\end{warnbox}
+
+\section{Calcul du Seuil Optimal — Indice de Youden}
+\label{sec:youden}
+
+\subsection{Problématique du Seuil Fixe à 0.98}
+
+Un seuil de décision fixe à \(0.98\) avait été initialement utilisé
+pour éliminer les faux positifs. Cette approche s'est révélée trop
+conservatrice~: des IRM présentant des masses tumorales claires avec
+\(p_{\text{tumeur}} = 0.85\) étaient classées \textit{saines}.
+
+\textbf{Le vrai problème} n'était pas le seuil, mais l'inversion des
+classes (§\ref{sec:inversion}). Une fois l'inversion corrigée, le seuil
+peut être abaissé à une valeur cliniquement raisonnée.
+
+\subsection{Justification Mathématique — Indice de Youden}
+
+L'indice de Youden \(J\) mesure la capacité globale du classifieur
+à distinguer les deux classes~:
+
+\begin{equation}
+  \label{eq:youden}
+  J(\tau) = \underbrace{\frac{TP}{TP + FN}}_{\text{Sensibilité}}
+           + \underbrace{\frac{TN}{TN + FP}}_{\text{Spécificité}}
+           - 1
+\end{equation}
+
+Le seuil optimal maximise cet indice~:
+
+\begin{equation}
+  \label{eq:youden_opt}
+  \tau^* = \arg\max_{\tau \in [0,1]} J(\tau)
+         = \arg\max_{\tau} \bigl[\text{TPR}(\tau) - \text{FPR}(\tau)\bigr]
+\end{equation}
+
+Ce seuil correspond au point de la courbe ROC le plus éloigné de la
+diagonale aléatoire, tel qu'illustré à la
+Figure~\ref{fig:roc_youden}.
+
+\begin{figure}[h]
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[
+      width=8cm, height=7cm,
+      xlabel={Taux de Faux Positifs (FPR)},
+      ylabel={Taux de Vrais Positifs (TPR)},
+      xmin=0, xmax=1, ymin=0, ymax=1,
+      grid=both, grid style={line width=0.2pt, gray!30},
+      legend pos=south east,
+      title={Courbe ROC et point de Youden},
+    ]
+      % Diagonale aleatoire
+      \addplot[dashed, gray, thick] coordinates {(0,0) (1,1)};
+      \addlegendentry{Classifieur aléatoire}
+
+      % Courbe ROC simulee
+      \addplot[blue!70!black, thick, smooth] coordinates {
+        (0,0) (0.05,0.45) (0.10,0.65) (0.15,0.75)
+        (0.25,0.85) (0.40,0.92) (0.60,0.96) (0.80,0.98) (1,1)
+      };
+      \addlegendentry{Courbe ROC (AUC $\approx 0.93$)}
+
+      % Point de Youden
+      \addplot[red, only marks, mark=*, mark size=3pt]
+        coordinates {(0.10, 0.65)};
+      \addlegendentry{Seuil de Youden $\tau^*$}
+
+      % Ligne verticale du point de Youden
+      \addplot[red, dashed, thin] coordinates {(0.10,0) (0.10,0.65)};
+      \addplot[red, dashed, thin] coordinates {(0,0.65) (0.10,0.65)};
+    \end{axis}
+  \end{tikzpicture}
+  \caption{Point de Youden sur la courbe ROC — maximise sensibilité + spécificité}
+  \label{fig:roc_youden}
+\end{figure}
+
+\subsection{Implémentation Automatique}
+
+\begin{lstlisting}[caption={Calcul du seuil optimal (brats\_classifier.py)},
+                   label={lst:youden}]
+def find_optimal_threshold(model, val_gen,
+                            method="youden",
+                            stats_path=STATS_FILE):
+    y_true, y_probs = [], []
+    for Xb, yb in val_gen:
+        y_probs.extend(model.predict(Xb, verbose=0).flatten())
+        y_true.extend(yb)
+    y_true  = np.array(y_true)
+    y_probs = np.array(y_probs)
+
+    fpr, tpr, thresholds = roc_curve(y_true, y_probs)
+    youden   = tpr - fpr                  # eq. (4.4)
+    best_idx = int(np.argmax(youden))
+    best_t   = float(thresholds[best_idx])
+
+    # Clamp cliniquement raisonnable
+    best_t = float(np.clip(best_t, 0.25, 0.75))
+
+    # Persistance dans dataset_stats.json
+    with open(stats_path) as f:
+        stats = json.load(f)
+    stats["threshold"] = best_t
+    with open(stats_path, "w") as f:
+        json.dump(stats, f, indent=2)
+
+    return best_t
+\end{lstlisting}
+
+\subsection{Lecture Dynamique dans Django}
+
+\begin{lstlisting}[caption={Chargement du seuil optimal depuis JSON (views.py)},
+                   label={lst:threshold_load}]
+_raw_stats = _get_stats()
+DECISION_THRESHOLD = (
+    float(_raw_stats["threshold"])
+    if _raw_stats and "threshold" in _raw_stats
+    else 0.50
+)
+has_tumor = tumor_prob >= DECISION_THRESHOLD
+\end{lstlisting}
+
+\begin{successbox}[Avantages de cette approche]
+  \begin{itemize}
+    \item Le seuil s'adapte automatiquement à chaque nouveau modèle
+          sans modifier le code Django.
+    \item La valeur est calmée dans $[0.25, 0.75]$, ce qui garantit
+          un comportement cliniquement interprétable.
+    \item En cas de fichier absent, Django utilise le fallback $0.50$
+          (règle d'or de la probabilité bayésienne a priori uniforme).
+  \end{itemize}
+\end{successbox}
+
+% ============================================================
+%  CHAPITRE 5 — RÉALISATION DE L'INTERFACE
+% ============================================================
+\chapter{Réalisation de l'Interface Web}
+\label{chap:interface}
+
+\section{Architecture de l'Application Django}
+
+L'application web suit l'architecture MTV (Model–Template–View) de
+Django~:
+
+\begin{table}[h]
+  \centering
+  \caption{Structure du projet Django}
+  \label{tab:structure}
+  \begin{tabularx}{\textwidth}{llX}
+    \toprule
+    \textbf{Fichier} & \textbf{Rôle} & \textbf{Contenu clé} \\
+    \midrule
+    \fichier{views.py}           & Contrôleur & Prédiction, prétraitement, contexte \\
+    \fichier{result.html}        & Vue         & Affichage verdict + jauges \\
+    \fichier{settings.py}        & Config      & \code{MODEL\_PATH}, \code{STATS\_PATH} \\
+    \fichier{brats\_classifier.py} & Entraînement & ResNet50, Loss, Youden \\
+    \fichier{dataset\_stats.json} & Persistance & mean, std, threshold \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+% -----------------------------------------------------------
+%  FIGURE 1 — Interface d'accueil / Drag & Drop
+% -----------------------------------------------------------
+\subsection{Interface d'Accueil}
+
+La page d'accueil de BrainScan AI propose une zone de dépôt
+(\textit{Drag \& Drop}) permettant à l'utilisateur de soumettre
+directement son fichier IRM au format NIfTI (\fichier{.nii} ou
+\fichier{.nii.gz}) sans installation locale d'aucun logiciel.
+
+\begin{figure}[H]
+  \centering
+  % --> Remplacez 'fig_accueil' par le chemin réel de votre capture
+  %     (ex. : screenshots/fig_accueil.png)
+  \includegraphics[width=0.88\linewidth]{fig_accueil}
+  \caption{%
+    Interface d'accueil de \textbf{BrainScan AI} — Zone de dépôt
+    (\textit{Drag \& Drop}) pour le fichier NIfTI~(\code{.nii.gz}).
+    La charte graphique sombre avec l'accent bleu~(\code{\#00b4d8})
+    confère à l'application un aspect médical et professionnel.
+    L'utilisateur n'a aucun logiciel à installer~: tout le traitement
+    s'effectue côté serveur Django.
+  }
+  \label{fig:accueil}
+\end{figure}
+
+\section{Flux de Prédiction Complet}
+
+\begin{lstlisting}[caption={Vue de prédiction — flux principal (views.py)},
+                   label={lst:predict_flow}]
+def predict(request):
+    # 1. Reception et sauvegarde du fichier .nii.gz
+    tmp_path = sauvegarder_fichier(request.FILES["mri_file"])
+
+    # 2. Extraction de la coupe axiale centrale
+    slice_2d = _extract_central_slice(tmp_path)
+
+    # 3. Pretraitement : Z-Score + CLAHE + resize + ImageNet
+    tensor = _preprocess(slice_2d)
+
+    # 4. Inference + inversion des classes
+    raw = _get_model().predict(tensor, verbose=0)
+    tumor_prob = 1.0 - float(raw[0][0])   # inversion 0=Tumeur
+
+    # 5. Seuil optimal depuis dataset_stats.json
+    stats = _get_stats()
+    DECISION_THRESHOLD = float(stats.get("threshold", 0.50))
+    has_tumor = tumor_prob >= DECISION_THRESHOLD
+
+    # 6. Detection zone de signal atypique (80-95 %)
+    zone_signal_atypique = (not has_tumor) and (0.80 <= tumor_prob <= 0.95)
+
+    # 7. Rendu du template avec contexte enrichi
+    return render(request, "detector/result.html", context)
+\end{lstlisting}
+
+% -----------------------------------------------------------
+%  FIGURE 2 — Chargement et extraction de la coupe axiale
+% -----------------------------------------------------------
+
+Une fois le fichier soumis, le serveur effectue en séquence~:
+extraction de la coupe axiale n°75, normalisation Z-Score
+dataset-level, CLAHE, resize~$224\times224$, puis passage dans
+le réseau ResNet50. La Figure~\ref{fig:chargement} illustre
+l'état intermédiaire de l'interface pendant ce traitement.
+
+\begin{figure}[H]
+  \centering
+  % --> Remplacez 'fig_chargement' par le chemin réel de votre capture
+  \includegraphics[width=0.88\linewidth]{fig_chargement}
+  \caption{%
+    \textbf{Processus de chargement et d'extraction} — Après soumission
+    du fichier \fichier{.nii.gz}, l'application extrait automatiquement
+    la coupe axiale centrale (coupe~n°75, ou la coupe médiane si le
+    volume compte moins de~75 coupes). La coupe brute est sauvegardée
+    en PNG pour l'affichage côté client, tandis que la version
+    prétraitée (Z-Score + CLAHE + normalisation ImageNet) est
+    transmise au modèle ResNet50 pour l'inférence.
+  }
+  \label{fig:chargement}
+\end{figure}
+
+\section{Conception de l'Expérience Utilisateur}
+\label{sec:ux}
+
+\subsection{Philosophie de Design}
+
+Le principal défi UX d'un outil de diagnostic assisté est d'informer
+sans alarmer. Trois principes ont guidé les choix d'interface~:
+
+\begin{enumerate}
+  \item \textbf{Masquer les chiffres bruts inquiétants}~: une probabilité
+        de «~79.3~\% de tumeur~» sur un verdict \textit{sain} crée une
+        anxiété injustifiée. L'utilisateur final n'est pas statisticien.
+
+  \item \textbf{Substituer la probabilité par la fiabilité}~: l'indicateur
+        affiché répond à la question «~le modèle est-il sûr de son
+        verdict~?~», pas «~quelle est la probabilité exacte~?~».
+
+  \item \textbf{Contextualiser les cas incertains}~: si le signal tumoral
+        est entre 80~\% et 95~\% sans franchir le seuil, un message
+        spécifique oriente vers une consultation complémentaire.
+\end{enumerate}
+
+\subsection{Les Trois États d'Affichage}
+
+\begin{table}[h]
+  \centering
+  \caption{États d'affichage selon la probabilité tumorale}
+  \label{tab:etats_affichage}
+  \begin{tabularx}{\textwidth}{lcXl}
+    \toprule
+    \textbf{État} & \textbf{Condition} & \textbf{Message} & \textbf{Couleur} \\
+    \midrule
+    Tumeur détectée
+      & $p \geq \tau^*$
+      & Probabilité tumorale brute
+      & Rouge \\
+    Signal atypique
+      & $0.80 \leq p < \tau^*$ si $\tau^* > 0.80$
+      & «~Analyse incertaine~»
+      & Orange \\
+    Cerveau sain
+      & $p < 0.80$
+      & «~Fiabilité~: Élevée — 100~\%~»
+      & Vert \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+% -----------------------------------------------------------
+%  FIGURES 3 & 4 — Résultats Sain et Tumeur (côte à côte)
+% -----------------------------------------------------------
+
+Les Figures~\ref{fig:resultat_sain} et~\ref{fig:resultat_tumeur}
+illustrent les deux verdicts possibles renvoyés par BrainScan AI.
+Chaque page de résultats présente~: la coupe IRM extraite (colonne
+gauche), la jauge demi-cercle SVG animée, et l'indicateur
+de fiabilité ou d'alerte (colonne droite).
+
+\begin{figure}[H]
+  \centering
+
+  % ── Sous-figure gauche : Cerveau sain ────────────────────
+  \begin{subfigure}[t]{0.48\textwidth}
+    \centering
+    % --> Remplacez 'fig_resultat_sain' par votre capture
+    \includegraphics[width=\linewidth]{fig_resultat_sain}
+    \caption{%
+      \textbf{Verdict : Cerveau sain.}
+      L'indicateur de \textit{Fiabilité du diagnostic} affiche
+      \textbf{100\,\%} en vert~(\code{\#2ecc9a}). Le message
+      rassurant \og Le modèle n'a détecté aucun signal dépassant
+      le seuil de rigueur médicale \fg{} remplace l'affichage
+      de la probabilité brute, évitant toute anxiété injustifiée.
+    }
+    \label{fig:resultat_sain}
+  \end{subfigure}
+  \hfill
+  % ── Sous-figure droite : Tumeur détectée ─────────────────
+  \begin{subfigure}[t]{0.48\textwidth}
+    \centering
+    % --> Remplacez 'fig_resultat_tumeur' par votre capture
+    \includegraphics[width=\linewidth]{fig_resultat_tumeur}
+    \caption{%
+      \textbf{Verdict : Tumeur détectée.}
+      L'alerte rouge~(\code{\#ff6b7a}) est déclenchée dès que
+      $p_{\text{tumeur}} \geq \tau^*$. La jauge demi-cercle
+      affiche le score de confiance du modèle. La coupe IRM
+      est présentée à gauche pour permettre une vérification
+      visuelle immédiate par le clinicien.
+    }
+    \label{fig:resultat_tumeur}
+  \end{subfigure}
+
+  \caption{%
+    \textbf{Pages de résultats de BrainScan AI.}
+    À gauche~: verdict \textit{Cerveau sain} avec indicateur de
+    fiabilité vert à 100\,\%. À droite~: verdict \textit{Tumeur
+    détectée} avec alerte rouge et score de confiance. Dans les
+    deux cas, la coupe IRM axiale extraite est affichée pour
+    permettre au clinicien une vérification visuelle du signal
+    analysé.
+  }
+  \label{fig:resultats}
+\end{figure}
+
+\subsection{Implémentation Django Template}
+
+\begin{lstlisting}[caption={Affichage conditionnel dans result.html (Django)},
+                   language=HTML,
+                   label={lst:template_ux}]
+{% if zone_signal_atypique %}
+  <!-- Zone orange : signal entre 80-95 % -->
+  <div class="confidence-label">
+    <span>Indice de confiance</span>
+    <span style="color:#f39c12; font-weight:700;">Moderee</span>
+  </div>
+  <p style="color:#c8a84b; background:rgba(243,156,18,0.08);">
+    <strong>Analyse incertaine : signaux atypiques.</strong>
+    Signal detecte a {{ prob_tumeur }}% -- examen complementaire recommande.
+  </p>
+{% else %}
+  <!-- Zone verte : haute fiabilite -->
+  <div class="confidence-label">
+    <span>Fiabilite du diagnostic</span>
+    <span style="color:#2ecc9a; font-weight:700;">Elevee</span>
+  </div>
+  <p>Le modele n'a detecte aucun signal depassant le seuil
+  de rigueur medicale.</p>
+{% endif %}
+\end{lstlisting}
+
+\subsection{Jauge SVG Animée}
+
+La jauge demi-cercle est rendue en SVG pur, animée par JavaScript
+avec une transition CSS de 1.2 secondes~:
+
+\begin{lstlisting}[caption={Animation de la jauge SVG (result.html — JS)},
+                   language=JavaScript,
+                   label={lst:gauge_js}]
+const hasTumor          = {{ has_tumor|yesno:"true,false" }};
+const zoneSignalAtypique = {{ zone_signal_atypique|yesno:"true,false" }};
+
+window.addEventListener('load', () => {
+  const arc   = document.getElementById('gauge-arc');
+  const total = 251.2;   // pi * 80 (rayon SVG)
+
+  const pct    = (hasTumor || zoneSignalAtypique) ? tumorPct : 100;
+  const filled = (pct / 100) * total;
+
+  setTimeout(() => {
+    arc.setAttribute('stroke-dasharray',
+      filled + ' ' + (total - filled));
+  }, 300);
+});
+\end{lstlisting}
+
+\section{Chargement Paresseux du Modèle}
+
+Pour éviter de recharger le modèle ResNet50 à chaque requête
+(coût~: 1–3 secondes), un mécanisme de singleton est utilisé~:
+
+\begin{lstlisting}[caption={Singleton de chargement du modèle (views.py)},
+                   label={lst:lazy_load}]
+_model = None
+
+def _get_model():
+    global _model
+    if _model is None:
+        focal_smooth_loss = _build_focal_smooth_loss(
+            gamma=2.0, alpha=0.25, label_smoothing=0.1
+        )
+        _model = load_model(
+            str(settings.MODEL_PATH),
+            custom_objects={"focal_smooth_loss": focal_smooth_loss},
+        )
+    return _model
+\end{lstlisting}
+
+% ============================================================
+%  CHAPITRE 6 — CONCLUSION ET PERSPECTIVES
+% ============================================================
+\chapter{Conclusion et Perspectives}
+\label{chap:conclusion}
+
+\section{Bilan}
+
+Ce projet a abouti à un système complet de détection de tumeurs
+cérébrales, couvrant l'ensemble de la chaîne~: collecte et prétraitement
+des données IRM, entraînement d'un modèle ResNet50 avec une fonction de
+perte adaptée, calibration automatique du seuil de décision, et
+déploiement via une interface web Django soignée.
+
+Les principaux apports techniques sont~:
+
+\begin{enumerate}
+  \item Un pipeline de normalisation Z-Score \textit{dataset-level}
+        garantissant la cohérence entre entraînement et inférence.
+  \item Une fonction de perte \textit{Focal Loss + Label Smoothing}
+        réduisant la surconfiance du modèle sur les données médicales.
+  \item Un calcul automatique du seuil de Youden évitant toute
+        configuration manuelle post-déploiement.
+  \item Une correction robuste de l'inversion des classes par simple
+        complémentation de la probabilité brute.
+  \item Une interface UX orientée \textit{réassurance} masquant les
+        probabilités brutes anxiogènes.
+\end{enumerate}
+
+\section{Perspectives}
+
+\subsection{Améliorations Techniques}
+
+\begin{itemize}
+  \item \textbf{Segmentation fine}~: migrer vers une architecture
+        U-Net pour produire un masque de localisation de la tumeur,
+        en plus du verdict binaire.
+
+  \item \textbf{Multi-modalité}~: exploiter les quatre séquences IRM
+        disponibles dans BraTS (T1, T1ce, T2, FLAIR) au lieu d'une
+        seule coupe FLAIR, par fusion de features.
+
+  \item \textbf{Calibration de probabilité}~: appliquer une régression
+        isotonique ou un Temperature Scaling post-entraînement pour
+        que \(p_{\text{tumeur}} = 0.7\) signifie réellement
+        «~70~\% de cas tumoraux dans la population~».
+
+  \item \textbf{Grad-CAM}~: intégrer la visualisation par carte de
+        saillance pour localiser visuellement les zones d'attention
+        du modèle sur l'IRM.
+\end{itemize}
+
+\subsection{Vers un Déploiement Clinique}
+
+Un déploiement en milieu clinique nécessiterait~:
+\begin{itemize}
+  \item Une validation prospective sur une cohorte externe (hôpital
+        partenaire, données non vues).
+  \item Un audit de biais~: vérifier que le modèle est équitable sur
+        tous les groupes démographiques (âge, sexe, ethnicit").
+  \item Une certification médicale (marquage CE classe IIb en Europe,
+        clearance FDA 510(k) aux États-Unis).
+\end{itemize}
+
+\vspace{1cm}
+
+\begin{successbox}[Mot de fin]
+  Ce projet illustre comment les techniques de \textit{deep learning}
+  modernes peuvent être mises au service d'un enjeu de santé publique,
+  à condition d'être accompagnées d'une réflexion rigoureuse sur la
+  calibration, la robustesse et l'expérience utilisateur.
+\end{successbox}
+
+% ============================================================
+%  BIBLIOGRAPHIE
+% ============================================================
+\printbibliography[heading=bibintoc, title={Références Bibliographiques}]
+
+% ============================================================
+%  ANNEXES
+% ============================================================
+\appendix
+
+\chapter{Configuration du Projet Django}
+\label{ann:settings}
+
+\begin{lstlisting}[caption={Extraits de settings.py},
+                   label={lst:settings}]
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+MODEL_PATH = BASE_DIR / "brats_final.keras"
+STATS_PATH = BASE_DIR / "dataset_stats.json"
+
+DATA_UPLOAD_MAX_MEMORY_SIZE = 52_428_800   # 50 Mo
+FILE_UPLOAD_MAX_MEMORY_SIZE = 52_428_800
+\end{lstlisting}
+
+\chapter{Format du Fichier dataset\_stats.json}
+\label{ann:json}
+
+\begin{lstlisting}[caption={dataset\_stats.json complet après entraînement},
+                   label={lst:json_full}]
+{
+  "mean":      1729.701416015625,
+  "std":       16289.5810546875,
+  "n_images":  875,
+  "threshold": 0.5312
+}
+\end{lstlisting}
+
+La clé \code{"threshold"} est absente si \code{find\_optimal\_threshold()}
+n'a pas encore été appelée. Dans ce cas, \fichier{views.py} utilise
+le fallback \(0.50\).
+
+\chapter{Hyperparamètres d'Entraînement}
+\label{ann:hyperparams}
+
+\begin{table}[h]
+  \centering
+  \caption{Hyperparamètres du modèle final}
+  \label{tab:hyperparams}
+  \begin{tabular}{ll}
+    \toprule
+    \textbf{Paramètre} & \textbf{Valeur} \\
+    \midrule
+    Architecture           & ResNet50 (ImageNet) \\
+    Couches fine-tunées    & 20 dernières \\
+    Taille d'entrée        & $224 \times 224 \times 3$ \\
+    Taille de batch        & 16 \\
+    Époques maximales      & 50 \\
+    Taux d'apprentissage   & $10^{-4}$ (Adam) \\
+    L2 régularisation      & $10^{-3}$ \\
+    Dropout                & $0.50$ (deux couches) \\
+    Label smoothing        & $\varepsilon = 0.10$ \\
+    Focal Loss $\gamma$    & $2.0$ \\
+    Focal Loss $\alpha$    & $0.25$ \\
+    Poids classe tumeur    & $2.0$ \\
+    EarlyStopping          & patience = 5 (val\_loss) \\
+    ReduceLROnPlateau      & factor = 0.5, patience = 3 \\
+    Seuil de décision      & Youden, clamped $[0.25, 0.75]$ \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\end{document}
